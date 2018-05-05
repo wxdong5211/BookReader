@@ -4,7 +4,8 @@
   "description": "books",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "npm run build && node src/index.js",
+    "build": "tsc",
     "test": "test"
   },
   "keywords": [

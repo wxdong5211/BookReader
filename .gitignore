@@ -5,6 +5,7 @@
 *.iml
 .idea/
 .gradle/
+node_modules/
 logs/
 data/
 

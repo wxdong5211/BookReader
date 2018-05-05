@@ -1,3 +1,3 @@
-import fs from 'fs'
-console.log(fs)
-console.log('hi')
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+console.log('hi123asdasd');
