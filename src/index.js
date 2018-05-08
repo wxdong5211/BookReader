@@ -14,7 +14,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const url_1 = __importDefault(require("url"));
 const http_1 = __importDefault(require("http"));
 const https_1 = __importDefault(require("https"));
-console.log('hi123asdasd');
 const parseUrl = (urlStr) => {
     const urlObj = url_1.default.parse(urlStr);
     const option = {
@@ -37,12 +36,9 @@ const request = (urlStr) => new Promise((resolve, reject) => {
         res.on('data', (chunk) => { rawData += chunk; });
         res.on('end', () => {
             try {
-                // const parsedData = JSON.parse(rawData);
-                // console.log(rawData);
                 resolve(rawData);
             }
             catch (e) {
-                console.error(e.message);
                 reject(e);
             }
         });
@@ -51,19 +47,25 @@ const request = (urlStr) => new Promise((resolve, reject) => {
     const httpMod = option.protocol === 'https:' ? https_1.default.request : http_1.default.request;
     const req = httpMod(option, cb);
     req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
         reject(e);
     });
     // req.write(data)
     req.end();
 });
-const test = () => __awaiter(this, void 0, void 0, function* () {
+const read = (book) => __awaiter(this, void 0, void 0, function* () {
     try {
-        const req = yield request('https://www.baidu.com:81');
+        let req = yield request(book.url);
+        const start = '<div id="yulan">';
+        const end = '</div>';
+        req = req.substr(req.indexOf(start) + start.length);
+        req = req.substr(0, req.indexOf(end));
         console.log(req);
     }
     catch (e) {
-        console.error(e.message);
+        console.log('problem with request: ' + e.message);
     }
 });
+const test = () => {
+    read({ url: 'http://www.80txt.com/txtml_69001.html' });
+};
 test();

@@ -18,7 +18,7 @@ const parseUrl = (urlStr:string) => {
   return option;
 }
 
-const request = (urlStr:string) => new Promise( (resolve,reject) => {
+const request = (options: http.RequestOptions) => new Promise<string>( (resolve,reject) => {
   const cb = (res: http.IncomingMessage) => {
     res.setEncoding('utf8');
     let rawData = '';
@@ -32,9 +32,8 @@ const request = (urlStr:string) => new Promise( (resolve,reject) => {
     });
   }
 
-  const option = parseUrl(urlStr);
-  const httpMod = option.protocol === 'https:' ? https.request : http.request;
-  const req = httpMod(option, cb);
+  const httpMod = options.protocol === 'https:' ? https.request : http.request;
+  const req = httpMod(options, cb);
   req.on('error', function (e) {
     reject(e);
   });
@@ -42,13 +41,42 @@ const request = (urlStr:string) => new Promise( (resolve,reject) => {
   req.end();
 })
 
-const test = async () => {
+interface Site {
+  host : string,
+  protocol? : string,
+  encode? : string,
+  interval? : number
+}
+
+interface Book {
+  url : string,
+  method? : string
+}
+
+interface Charcter {
+  url : string,
+  title : string,
+  create : Date,
+  disOrder? : number,
+  order : number
+}
+
+const read = async (book:Book) => {
   try {
-    const req = await request('https://www.baidu.com');
+    const option = parseUrl(book.url);
+    let req = await request(option);
+    const start = '<div id="yulan">';
+    const end = '</div>';
+    req = req.substr(req.indexOf(start) + start.length);
+    req = req.substr(0, req.indexOf(end));
     console.log(req)
   } catch (e) {
     console.log('problem with request: ' + e.message);
   }
+}
+
+const test = () => {
+  read({url:'http://www.80txt.com/txtml_69001.html'});
 };
 
 test();
