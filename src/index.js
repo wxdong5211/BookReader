@@ -29,7 +29,7 @@ const parseUrl = (urlStr) => {
     console.log(option);
     return option;
 };
-const request = (urlStr) => new Promise((resolve, reject) => {
+const request = (options) => new Promise((resolve, reject) => {
     const cb = (res) => {
         res.setEncoding('utf8');
         let rawData = '';
@@ -43,9 +43,8 @@ const request = (urlStr) => new Promise((resolve, reject) => {
             }
         });
     };
-    const option = parseUrl(urlStr);
-    const httpMod = option.protocol === 'https:' ? https_1.default.request : http_1.default.request;
-    const req = httpMod(option, cb);
+    const httpMod = options.protocol === 'https:' ? https_1.default.request : http_1.default.request;
+    const req = httpMod(options, cb);
     req.on('error', function (e) {
         reject(e);
     });
@@ -54,12 +53,16 @@ const request = (urlStr) => new Promise((resolve, reject) => {
 });
 const read = (book) => __awaiter(this, void 0, void 0, function* () {
     try {
-        let req = yield request(book.url);
+        const option = parseUrl(book.url);
+        let req = yield request(option);
         const start = '<div id="yulan">';
         const end = '</div>';
         req = req.substr(req.indexOf(start) + start.length);
         req = req.substr(0, req.indexOf(end));
-        console.log(req);
+        const xx = req.match(/<a.*href=".*".*>.*<\/a>/gi);
+        xx.forEach(x => {
+            console.log(x);
+        });
     }
     catch (e) {
         console.log('problem with request: ' + e.message);

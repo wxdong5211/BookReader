@@ -69,7 +69,11 @@ const read = async (book:Book) => {
     const end = '</div>';
     req = req.substr(req.indexOf(start) + start.length);
     req = req.substr(0, req.indexOf(end));
-    console.log(req)
+    const xx = req.match(/<a.*href=".*".*>.*<\/a>/gi)
+    xx!.forEach(x => {
+        console.log(x)
+    });
+
   } catch (e) {
     console.log('problem with request: ' + e.message);
   }
