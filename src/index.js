@@ -60,9 +60,25 @@ const read = (book) => __awaiter(this, void 0, void 0, function* () {
         req = req.substr(req.indexOf(start) + start.length);
         req = req.substr(0, req.indexOf(end));
         const xx = req.match(/<a.*href=".*".*>.*<\/a>/gi);
-        xx.forEach(x => {
-            console.log(x);
-        });
+        if (xx) {
+            const hrefStart = 'href="';
+            let idx = 0;
+            const chars = xx.map(x => {
+                let href = x.substr(x.indexOf(hrefStart) + hrefStart.length);
+                href = href.substr(0, href.indexOf('"'));
+                const title = x.replace(/<\/?[^>]*>/g, '');
+                const charcter = {
+                    url: href,
+                    title: title,
+                    create: new Date(),
+                    disOrder: idx,
+                    order: idx
+                };
+                idx++;
+                console.log(charcter);
+                return charcter;
+            });
+        }
     }
     catch (e) {
         console.log('problem with request: ' + e.message);
