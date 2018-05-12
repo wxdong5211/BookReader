@@ -14,6 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const url_1 = __importDefault(require("url"));
 const http_1 = __importDefault(require("http"));
 const https_1 = __importDefault(require("https"));
+const fs_1 = __importDefault(require("fs"));
 const parseUrl = (urlStr) => {
     const urlObj = url_1.default.parse(urlStr);
     const option = {
@@ -45,9 +46,7 @@ const request = (options) => new Promise((resolve, reject) => {
     };
     const httpMod = options.protocol === 'https:' ? https_1.default.request : http_1.default.request;
     const req = httpMod(options, cb);
-    req.on('error', function (e) {
-        reject(e);
-    });
+    req.on('error', e => reject(e));
     // req.write(data)
     req.end();
 });
@@ -84,7 +83,12 @@ const read = (book) => __awaiter(this, void 0, void 0, function* () {
         console.log('problem with request: ' + e.message);
     }
 });
+const init = () => {
+    const book = fs_1.default.readFileSync('data/book.json');
+    console.log(book.toString());
+};
 const test = () => {
-    read({ url: 'http://www.80txt.com/txtml_69001.html' });
+    init();
+    // read({url:'http://www.80txt.com/txtml_69001.html'});
 };
 test();

@@ -1,6 +1,7 @@
 import url from 'url'
 import http from 'http'
 import https from 'https'
+import fs from 'fs'
 
 const parseUrl = (urlStr:string) => {
   const urlObj = url.parse(urlStr)
@@ -34,9 +35,7 @@ const request = (options: http.RequestOptions) => new Promise<string>( (resolve,
 
   const httpMod = options.protocol === 'https:' ? https.request : http.request;
   const req = httpMod(options, cb);
-  req.on('error', function (e) {
-    reject(e);
-  });
+  req.on('error', e => reject(e));
   // req.write(data)
   req.end();
 })
@@ -94,8 +93,14 @@ const read = async (book:Book) => {
   }
 }
 
+const init = () => {
+  const book = fs.readFileSync('data/book.json')
+  console.log(book.toString())
+}
+
 const test = () => {
-  read({url:'http://www.80txt.com/txtml_69001.html'});
+  init()
+  // read({url:'http://www.80txt.com/txtml_69001.html'});
 };
 
 test();
