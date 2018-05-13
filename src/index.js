@@ -87,10 +87,14 @@ const readJsonFile = (path) => {
     const book = fs_1.default.readFileSync(path);
     return JSON.parse(book.toString());
 };
+const readJsonDir = (path) => {
+    const dirs = fs_1.default.readdirSync(path);
+    return dirs.map(d => readJsonFile(path + '/' + d));
+};
 const init = () => {
     return {
-        "sites": [readJsonFile('data/site.json')],
-        "books": [readJsonFile('data/book.json')]
+        "sites": readJsonDir('data/sites'),
+        "books": readJsonDir('data/books')
     };
 };
 const test = () => {

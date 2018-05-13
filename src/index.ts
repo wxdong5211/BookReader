@@ -105,10 +105,15 @@ const readJsonFile = (path: fs.PathLike) => {
   return JSON.parse(book.toString())
 }
 
+const readJsonDir = (path: fs.PathLike) => {
+  const dirs = fs.readdirSync(path)
+  return dirs.map(d => readJsonFile(path+'/'+d))
+}
+
 const init = () => {
   return {
-    "sites":[readJsonFile('data/site.json')],
-    "books":[readJsonFile('data/book.json')]
+    "sites": readJsonDir('data/sites'),
+    "books": readJsonDir('data/books')
   }
 }
 
