@@ -11,49 +11,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const url_1 = __importDefault(require("url"));
-const http_1 = __importDefault(require("http"));
-const https_1 = __importDefault(require("https"));
-const fs_1 = __importDefault(require("fs"));
-const parseUrl = (urlStr) => {
-    const urlObj = url_1.default.parse(urlStr);
-    const option = {
-        protocol: urlObj.protocol,
-        host: urlObj.host,
-        hostname: urlObj.hostname,
-        port: urlObj.port,
-        method: 'GET',
-        path: urlObj.path,
-        headers: {},
-        timeout: 10
-    };
-    console.log(option);
-    return option;
-};
-const request = (options) => new Promise((resolve, reject) => {
-    const cb = (res) => {
-        res.setEncoding('utf8');
-        let rawData = '';
-        res.on('data', (chunk) => { rawData += chunk; });
-        res.on('end', () => {
-            try {
-                resolve(rawData);
-            }
-            catch (e) {
-                reject(e);
-            }
-        });
-    };
-    const httpMod = options.protocol === 'https:' ? https_1.default.request : http_1.default.request;
-    const req = httpMod(options, cb);
-    req.on('error', e => reject(e));
-    // req.write(data)
-    req.end();
-});
+const request_1 = __importDefault(require("./request"));
+const file_1 = __importDefault(require("./file"));
 const read = (book) => __awaiter(this, void 0, void 0, function* () {
     try {
-        const option = parseUrl(book.url);
-        let req = yield request(option);
+        const option = request_1.default.parseUrl(book.url);
+        let req = yield request_1.default.request(option);
         const start = book.block.dirStart;
         const end = book.block.dirEnd;
         req = req.substr(req.indexOf(start) + start.length);
@@ -83,23 +46,15 @@ const read = (book) => __awaiter(this, void 0, void 0, function* () {
         console.log('problem with request: ' + e.message);
     }
 });
-const readJsonFile = (path) => {
-    const book = fs_1.default.readFileSync(path);
-    return JSON.parse(book.toString());
-};
-const readJsonDir = (path) => {
-    const dirs = fs_1.default.readdirSync(path);
-    return dirs.map(d => readJsonFile(path + '/' + d));
-};
 const init = () => {
     return {
-        "sites": readJsonDir('data/sites'),
-        "books": readJsonDir('data/books')
+        "sites": file_1.default.readJsonDir('data/sites'),
+        "books": file_1.default.readJsonDir('data/books')
     };
 };
 const test = () => {
     const book = init();
     console.log(book);
-    read(book.books[0]);
+    // read(book.books[0]);
 };
 test();
