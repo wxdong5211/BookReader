@@ -2,7 +2,7 @@ import url from 'url'
 import http from 'http'
 import https from 'https'
 
-const parseUrl = (urlStr:string) => {
+const parseUrl = (urlStr:string) : http.RequestOptions => {
   const urlObj = url.parse(urlStr)
   const option = {
     protocol: urlObj.protocol,
@@ -18,7 +18,7 @@ const parseUrl = (urlStr:string) => {
   return option;
 }
 
-const request = (options: http.RequestOptions) => new Promise<string>( (resolve,reject) => {
+const request = (options: http.RequestOptions) : Promise<string> => new Promise<string>( (resolve,reject) => {
   const cb = (res: http.IncomingMessage) => {
     res.setEncoding('utf8');
     let rawData = '';

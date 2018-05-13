@@ -13,33 +13,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const request_1 = __importDefault(require("./request"));
 const file_1 = __importDefault(require("./file"));
-const read = (book) => __awaiter(this, void 0, void 0, function* () {
+var CharcterState;
+(function (CharcterState) {
+    CharcterState[CharcterState["Init"] = 0] = "Init";
+    CharcterState[CharcterState["Done"] = 1] = "Done";
+    CharcterState[CharcterState["Error"] = 2] = "Error";
+})(CharcterState || (CharcterState = {}));
+const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
+const readDir = (book) => __awaiter(this, void 0, void 0, function* () {
+    const option = request_1.default.parseUrl(book.url);
+    let req = yield request_1.default.request(option);
+    const start = book.block.dirStart;
+    const end = book.block.dirEnd;
+    req = req.substr(req.indexOf(start) + start.length);
+    req = req.substr(0, req.indexOf(end));
+    const dirHtml = req.match(/<a.*href=".*".*>.*<\/a>/gi);
+    if (dirHtml) {
+        const hrefStart = 'href="';
+        let idx = 0;
+        return dirHtml.map(x => {
+            let href = x.substr(x.indexOf(hrefStart) + hrefStart.length);
+            href = href.substr(0, href.indexOf('"'));
+            const title = x.replace(/<\/?[^>]*>/g, '');
+            const charcter = {
+                url: href,
+                title: title,
+                create: new Date(),
+                disOrder: idx,
+                order: idx,
+                state: CharcterState.Init
+            };
+            idx++;
+            return charcter;
+        });
+    }
+    return [];
+});
+const updateDir = (book) => __awaiter(this, void 0, void 0, function* () {
     try {
-        const option = request_1.default.parseUrl(book.url);
-        let req = yield request_1.default.request(option);
-        const start = book.block.dirStart;
-        const end = book.block.dirEnd;
-        req = req.substr(req.indexOf(start) + start.length);
-        req = req.substr(0, req.indexOf(end));
-        const xx = req.match(/<a.*href=".*".*>.*<\/a>/gi);
-        if (xx) {
-            const hrefStart = 'href="';
-            let idx = 0;
-            const chars = xx.map(x => {
-                let href = x.substr(x.indexOf(hrefStart) + hrefStart.length);
-                href = href.substr(0, href.indexOf('"'));
-                const title = x.replace(/<\/?[^>]*>/g, '');
-                const charcter = {
-                    url: href,
-                    title: title,
-                    create: new Date(),
-                    disOrder: idx,
-                    order: idx
-                };
-                idx++;
-                console.log(charcter);
-                return charcter;
-            });
+        const chars = yield readDir(book);
+        console.log(chars);
+        for (let x in chars) {
+            yield sleep(1000);
+            console.log(new Date());
+            console.log(chars[x]);
         }
     }
     catch (e) {
@@ -55,6 +72,6 @@ const init = () => {
 const test = () => {
     const book = init();
     console.log(book);
-    // read(book.books[0]);
+    updateDir(book.books[0]);
 };
 test();
