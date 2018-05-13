@@ -40,16 +40,23 @@ const request = (options: http.RequestOptions) => new Promise<string>( (resolve,
   req.end();
 })
 
+interface Block {
+  dirStart: string,
+  dirEnd: string
+}
+
 interface Site {
   host : string,
   protocol? : string,
   encode? : string,
-  interval? : number
+  interval? : number,
+  block: Block
 }
 
 interface Book {
   url : string,
-  method? : string
+  method? : string,
+  block: Block
 }
 
 interface Charcter {
@@ -64,8 +71,8 @@ const read = async (book:Book) => {
   try {
     const option = parseUrl(book.url);
     let req = await request(option);
-    const start = '<div id="yulan">';
-    const end = '</div>';
+    const start = book.block.dirStart;
+    const end = book.block.dirEnd;
     req = req.substr(req.indexOf(start) + start.length);
     req = req.substr(0, req.indexOf(end));
     const xx = req.match(/<a.*href=".*".*>.*<\/a>/gi)
@@ -93,14 +100,22 @@ const read = async (book:Book) => {
   }
 }
 
+const readJsonFile = (path: fs.PathLike) => {
+  const book = fs.readFileSync(path)
+  return JSON.parse(book.toString())
+}
+
 const init = () => {
-  const book = fs.readFileSync('data/book.json')
-  console.log(book.toString())
+  return {
+    "sites":[readJsonFile('data/site.json')],
+    "books":[readJsonFile('data/book.json')]
+  }
 }
 
 const test = () => {
-  init()
-  // read({url:'http://www.80txt.com/txtml_69001.html'});
+  const book = init()
+  console.log(book)
+  read(book.books[0]);
 };
 
 test();

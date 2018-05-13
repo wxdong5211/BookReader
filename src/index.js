@@ -54,8 +54,8 @@ const read = (book) => __awaiter(this, void 0, void 0, function* () {
     try {
         const option = parseUrl(book.url);
         let req = yield request(option);
-        const start = '<div id="yulan">';
-        const end = '</div>';
+        const start = book.block.dirStart;
+        const end = book.block.dirEnd;
         req = req.substr(req.indexOf(start) + start.length);
         req = req.substr(0, req.indexOf(end));
         const xx = req.match(/<a.*href=".*".*>.*<\/a>/gi);
@@ -83,12 +83,19 @@ const read = (book) => __awaiter(this, void 0, void 0, function* () {
         console.log('problem with request: ' + e.message);
     }
 });
+const readJsonFile = (path) => {
+    const book = fs_1.default.readFileSync(path);
+    return JSON.parse(book.toString());
+};
 const init = () => {
-    const book = fs_1.default.readFileSync('data/book.json');
-    console.log(book.toString());
+    return {
+        "sites": [readJsonFile('data/site.json')],
+        "books": [readJsonFile('data/book.json')]
+    };
 };
 const test = () => {
-    init();
-    // read({url:'http://www.80txt.com/txtml_69001.html'});
+    const book = init();
+    console.log(book);
+    read(book.books[0]);
 };
 test();
