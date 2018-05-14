@@ -37,6 +37,12 @@ interface Charcter {
 
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
+const readChar = async (char:Charcter) : Promise<string>  => {
+  const option = request.parseUrl(char.url);
+  let req = await request.request(option);
+  return req;
+}
+
 const readDir = async (book:Book) : Promise<Array<Charcter>>  => {
   const option = request.parseUrl(book.url);
   let req = await request.request(option);
@@ -70,19 +76,37 @@ const readDir = async (book:Book) : Promise<Array<Charcter>>  => {
 const updateDir = async (book:Book) => {
   try {
     const chars = await readDir(book);
-    console.log(chars)
+    writeChars('data/books/chars.json', chars);
     for (let x in chars) {
       await sleep(1000)
       console.log(new Date())
       console.log(chars[x])
+      const data = await readChar(chars[x])
+      writeCharData('data/books/chars/'+x+'.json', data);
     }
   } catch (e) {
     console.log('problem with request: ' + e.message);
   }
 }
 
-const writeBook = (book:Book) => {
-  file.writeFile('data/test.json', JSON.stringify(book, null, 2))
+const writeChars = (path: string, chars:Array<Charcter>) => {
+  writeJson(path, {chars})
+}
+
+const writeChar = (path: string, char:Charcter) => {
+  writeJson(path, char)
+}
+
+const writeCharData = (path: string, data:string) => {
+  writeJson(path, {data})
+}
+
+const writeBook = (path: string, book:Book) => {
+  writeJson(path, book)
+}
+
+const writeJson = (path: string, data:any) => {
+  file.writeFile(path, JSON.stringify(data, null, 2))
 }
 
 const init = () => {
@@ -96,7 +120,7 @@ const test = () => {
   const book = init()
   console.log(book)
   updateDir(book.books[0]);
-  writeBook(book.books[0])
+  writeBook('data/test.json', book.books[0])
 };
 
 test();

@@ -20,6 +20,11 @@ var CharcterState;
     CharcterState[CharcterState["Error"] = 2] = "Error";
 })(CharcterState || (CharcterState = {}));
 const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
+const readChar = (char) => __awaiter(this, void 0, void 0, function* () {
+    const option = request_1.default.parseUrl(char.url);
+    let req = yield request_1.default.request(option);
+    return req;
+});
 const readDir = (book) => __awaiter(this, void 0, void 0, function* () {
     const option = request_1.default.parseUrl(book.url);
     let req = yield request_1.default.request(option);
@@ -52,19 +57,33 @@ const readDir = (book) => __awaiter(this, void 0, void 0, function* () {
 const updateDir = (book) => __awaiter(this, void 0, void 0, function* () {
     try {
         const chars = yield readDir(book);
-        console.log(chars);
+        writeChars('data/books/chars.json', chars);
         for (let x in chars) {
             yield sleep(1000);
             console.log(new Date());
             console.log(chars[x]);
+            const data = yield readChar(chars[x]);
+            writeCharData('data/books/chars/' + x + '.json', data);
         }
     }
     catch (e) {
         console.log('problem with request: ' + e.message);
     }
 });
-const writeBook = (book) => {
-    file_1.default.writeFile('data/test.json', JSON.stringify(book, null, 2));
+const writeChars = (path, chars) => {
+    writeJson(path, { chars });
+};
+const writeChar = (path, char) => {
+    writeJson(path, char);
+};
+const writeCharData = (path, data) => {
+    writeJson(path, { data });
+};
+const writeBook = (path, book) => {
+    writeJson(path, book);
+};
+const writeJson = (path, data) => {
+    file_1.default.writeFile(path, JSON.stringify(data, null, 2));
 };
 const init = () => {
     return {
@@ -75,7 +94,7 @@ const init = () => {
 const test = () => {
     const book = init();
     console.log(book);
-    // updateDir(book.books[0]);
-    writeBook(book.books[0]);
+    updateDir(book.books[0]);
+    writeBook('data/test.json', book.books[0]);
 };
 test();
