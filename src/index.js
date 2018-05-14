@@ -63,6 +63,9 @@ const updateDir = (book) => __awaiter(this, void 0, void 0, function* () {
         console.log('problem with request: ' + e.message);
     }
 });
+const writeBook = (book) => {
+    file_1.default.writeFile('data/test.json', JSON.stringify(book, null, 2));
+};
 const init = () => {
     return {
         "sites": file_1.default.readJsonDir('data/sites'),
@@ -72,6 +75,7 @@ const init = () => {
 const test = () => {
     const book = init();
     console.log(book);
-    updateDir(book.books[0]);
+    // updateDir(book.books[0]);
+    writeBook(book.books[0]);
 };
 test();

@@ -10,4 +10,8 @@ const readJsonDir = (path: fs.PathLike) => {
   return dirs.map(d => readJsonFile(path+'/'+d))
 }
 
-export default {readJsonFile, readJsonDir};
+const writeFile = (path: fs.PathLike, data: string) => {
+  fs.writeFileSync(path, data)
+}
+
+export default {readJsonFile, readJsonDir, writeFile};

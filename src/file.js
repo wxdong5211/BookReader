@@ -12,4 +12,7 @@ const readJsonDir = (path) => {
     const dirs = fs_1.default.readdirSync(path);
     return dirs.map(d => readJsonFile(path + '/' + d));
 };
-exports.default = { readJsonFile, readJsonDir };
+const writeFile = (path, data) => {
+    fs_1.default.writeFileSync(path, data);
+};
+exports.default = { readJsonFile, readJsonDir, writeFile };

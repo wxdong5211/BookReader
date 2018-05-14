@@ -81,6 +81,9 @@ const updateDir = async (book:Book) => {
   }
 }
 
+const writeBook = (book:Book) => {
+  file.writeFile('data/test.json', JSON.stringify(book, null, 2))
+}
 
 const init = () => {
   return {
@@ -93,6 +96,7 @@ const test = () => {
   const book = init()
   console.log(book)
   updateDir(book.books[0]);
+  writeBook(book.books[0])
 };
 
 test();
