@@ -12,5 +12,8 @@
     "book"
   ],
   "author": "Invalid",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^10.0.8"
+  }
 }
