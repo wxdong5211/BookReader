@@ -20,7 +20,11 @@ const parseUrl = (urlStr:string) : http.RequestOptions => {
 
 const request = (options: http.RequestOptions) : Promise<string> => new Promise<string>( (resolve,reject) => {
   const cb = (res: http.IncomingMessage) => {
-    res.setEncoding('utf8');
+    if(options.host === 'www.qiushu.cc'){
+      res.setEncoding('gbk');
+    } else {
+      res.setEncoding('utf8');
+    }
     let rawData = '';
     res.on('data', (chunk) => { rawData += chunk; });
     res.on('end', () => {

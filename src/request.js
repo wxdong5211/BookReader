@@ -23,7 +23,12 @@ const parseUrl = (urlStr) => {
 };
 const request = (options) => new Promise((resolve, reject) => {
     const cb = (res) => {
-        res.setEncoding('utf8');
+        if (options.host === 'www.qiushu.cc') {
+            res.setEncoding('gbk');
+        }
+        else {
+            res.setEncoding('utf8');
+        }
         let rawData = '';
         res.on('data', (chunk) => { rawData += chunk; });
         res.on('end', () => {

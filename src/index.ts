@@ -82,6 +82,7 @@ const updateDir = async (book:Book) => {
       console.log(new Date())
       console.log(chars[x])
       const data = await readChar(chars[x])
+      console.log(data)
       writeCharData('data/books/chars/'+x+'.json', data);
     }
   } catch (e) {

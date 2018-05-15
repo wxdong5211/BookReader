@@ -63,6 +63,7 @@ const updateDir = (book) => __awaiter(this, void 0, void 0, function* () {
             console.log(new Date());
             console.log(chars[x]);
             const data = yield readChar(chars[x]);
+            console.log(data);
             writeCharData('data/books/chars/' + x + '.json', data);
         }
     }
