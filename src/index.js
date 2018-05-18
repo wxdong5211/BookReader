@@ -98,10 +98,10 @@ const testa = () => __awaiter(this, void 0, void 0, function* () {
     const option = request_1.default.parseUrl('http://www.qiushu.cc/t/69001/18457779.html');
     try {
         let req = yield request_1.default.request(option);
-        const data1 = iconv_lite_1.default.decode(Buffer.from(req), 'gbk');
-        // const data = iconv.encode(data1,'utf-8')
-        // console.log(data1)
-        file_1.default.writeFile('data/test1.json', data1);
+        // const data1 = iconv.decode(Buffer.from(req),'gbk')
+        const data = iconv_lite_1.default.encode(req, 'utf8');
+        console.log(data);
+        file_1.default.writeFile('data/test1.json', data.toString());
     }
     catch (e) {
         console.error(e);

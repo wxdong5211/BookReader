@@ -124,10 +124,10 @@ const testa = async () => {
   const option = request.parseUrl('http://www.qiushu.cc/t/69001/18457779.html');
   try{
     let req = await request.request(option);
-    const data1 = iconv.decode(Buffer.from(req),'gbk')
+    // const data1 = iconv.decode(Buffer.from(req),'gbk')
     // const data = iconv.encode(data1,'utf-8')
-    // console.log(data1)
-    file.writeFile('data/test1.json', data1)
+    console.log(req)
+    file.writeFile('data/test1.json', req)
   }catch(e){
     console.error(e)
   }

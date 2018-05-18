@@ -34,14 +34,14 @@ const request = (options: http.RequestOptions) : Promise<string> => new Promise<
     // } else {
       // res.setEncoding('utf8');
     // }
-    let rawData = '';
-    // var newBuffer = Buffer.concat([buffer1, buffer2]);
+    const rawData: Array<Buffer> = [];
     res.on('data', (chunk) => {
-      rawData += chunk;
+      rawData.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
     });
     res.on('end', () => {
       try {
-        resolve(rawData);
+        var newBuffer = Buffer.concat(rawData);
+        resolve(iconv.decode(newBuffer, 'gbk'));
       } catch (e) {
         reject(e);
       }

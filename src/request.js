@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const url_1 = __importDefault(require("url"));
 const http_1 = __importDefault(require("http"));
 const https_1 = __importDefault(require("https"));
+const iconv_lite_1 = __importDefault(require("iconv-lite"));
 const parseUrl = (urlStr) => {
     const urlObj = url_1.default.parse(urlStr);
     const option = {
@@ -35,14 +36,14 @@ const request = (options) => new Promise((resolve, reject) => {
         // } else {
         // res.setEncoding('utf8');
         // }
-        let rawData = '';
-        // var newBuffer = Buffer.concat([buffer1, buffer2]);
+        const rawData = [];
         res.on('data', (chunk) => {
-            rawData += chunk;
+            rawData.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
         });
         res.on('end', () => {
             try {
-                resolve(rawData);
+                var newBuffer = Buffer.concat(rawData);
+                resolve(iconv_lite_1.default.decode(newBuffer, 'gbk'));
             }
             catch (e) {
                 reject(e);
