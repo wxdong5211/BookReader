@@ -1,6 +1,8 @@
 import request from './request'
 import file from './file'
 
+import iconv from 'iconv-lite'
+
 interface Block {
   dirStart: string,
   dirEnd: string
@@ -117,11 +119,27 @@ const init = () => {
   }
 }
 
+const testa = async () => {
+  // http://www.qiushu.cc/t/69001/18457779.html
+  const option = request.parseUrl('http://www.qiushu.cc/t/69001/18457779.html');
+  try{
+    let req = await request.request(option);
+    const data1 = iconv.decode(Buffer.from(req),'gbk')
+    // const data = iconv.encode(data1,'utf-8')
+    // console.log(data1)
+    file.writeFile('data/test1.json', data1)
+  }catch(e){
+    console.error(e)
+  }
+}
+
 const test = () => {
-  const book = init()
-  console.log(book)
-  updateDir(book.books[0]);
-  writeBook('data/test.json', book.books[0])
+  testa()
+  // const book = init()
+  // console.log(book)
+  // updateDir(book.books[0]);
+  // writeBook('data/test.json', book.books[0])
+
 };
 
 test();

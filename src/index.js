@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const request_1 = __importDefault(require("./request"));
 const file_1 = __importDefault(require("./file"));
+const iconv_lite_1 = __importDefault(require("iconv-lite"));
 var CharcterState;
 (function (CharcterState) {
     CharcterState[CharcterState["Init"] = 0] = "Init";
@@ -92,10 +93,25 @@ const init = () => {
         "books": file_1.default.readJsonDir('data/books')
     };
 };
+const testa = () => __awaiter(this, void 0, void 0, function* () {
+    // http://www.qiushu.cc/t/69001/18457779.html
+    const option = request_1.default.parseUrl('http://www.qiushu.cc/t/69001/18457779.html');
+    try {
+        let req = yield request_1.default.request(option);
+        const data1 = iconv_lite_1.default.decode(Buffer.from(req), 'gbk');
+        // const data = iconv.encode(data1,'utf-8')
+        // console.log(data1)
+        file_1.default.writeFile('data/test1.json', data1);
+    }
+    catch (e) {
+        console.error(e);
+    }
+});
 const test = () => {
-    const book = init();
-    console.log(book);
-    updateDir(book.books[0]);
-    writeBook('data/test.json', book.books[0]);
+    testa();
+    // const book = init()
+    // console.log(book)
+    // updateDir(book.books[0]);
+    // writeBook('data/test.json', book.books[0])
 };
 test();
