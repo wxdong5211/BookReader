@@ -1,6 +1,7 @@
 import url from 'url'
 import http from 'http'
 import https from 'https'
+import zlib from 'zlib'
 
 import iconv from 'iconv-lite'
 
@@ -14,12 +15,7 @@ const parseUrl = (urlStr:string) : http.RequestOptions => {
     method: 'GET',
     path: urlObj.path,
     headers: {
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-      // 'Accept-Encoding': 'gzip, deflate',
-      // 'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-      // 'Connection': 'keep-alive',
-      'host':urlObj.host,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36'
+      // 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36'
     },
     timeout: 10
   }
@@ -40,8 +36,17 @@ const request = (options: http.RequestOptions) : Promise<string> => new Promise<
     });
     res.on('end', () => {
       try {
-        var newBuffer = Buffer.concat(rawData);
-        resolve(iconv.decode(newBuffer, 'gbk'));
+        let newBuffer = Buffer.concat(rawData);
+        if(res.headers['content-encoding'] === 'gzip'){
+          newBuffer = zlib.gunzipSync(newBuffer)
+        }
+        const tryStr = newBuffer.toString()
+        const meta = tryStr.match(/<meta\shttp-equiv="Content-Type"\scontent="text\/html;\scharset=([^\"]*)"\s\/>/i)
+        if(meta && meta.length > 1 && meta[1] !== 'utf-8'){
+          resolve(iconv.decode(newBuffer, meta[1]));
+        }else{
+          resolve(tryStr);
+        }
       } catch (e) {
         reject(e);
       }
