@@ -23,13 +23,8 @@ const parseUrl = (urlStr:string) : http.RequestOptions => {
   return option;
 }
 
-const request = (options: http.RequestOptions) : Promise<string> => new Promise<string>( (resolve,reject) => {
+const request = (options: http.RequestOptions, data?: any) : Promise<string> => new Promise<string>( (resolve,reject) => {
   const cb = (res: http.IncomingMessage) => {
-    // if(options.host === 'www.qiushu.cc'){
-    //   res.setEncoding('gbk');
-    // } else {
-      // res.setEncoding('utf8');
-    // }
     const rawData: Array<Buffer> = [];
     res.on('data', (chunk) => {
       rawData.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
@@ -52,11 +47,12 @@ const request = (options: http.RequestOptions) : Promise<string> => new Promise<
       }
     });
   }
-
   const httpMod = options.protocol === 'https:' ? https.request : http.request;
   const req = httpMod(options, cb);
   req.on('error', e => reject(e));
-  // req.write(data)
+  if(data){
+    req.write(data)
+  }
   req.end();
 })
 
