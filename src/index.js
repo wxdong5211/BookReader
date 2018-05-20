@@ -1,12 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -20,11 +12,11 @@ var CharcterState;
     CharcterState[CharcterState["Error"] = 2] = "Error";
 })(CharcterState || (CharcterState = {}));
 const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
-const readHtml = (url) => __awaiter(this, void 0, void 0, function* () {
+const readHtml = async (url) => {
     const option = request_1.default.parseUrl(url);
-    let req = yield request_1.default.request(option);
+    let req = await request_1.default.request(option);
     return req;
-});
+};
 const readChar = (char) => {
     return readHtml(char.url);
 };
@@ -61,26 +53,26 @@ const parseDir = (book, req) => {
     const dirHtml = req.match(/<a.*href=".*".*>.*<\/a>/gi);
     return dirHtml ? dirHtml.map(parseCharLink) : [];
 };
-const readDir = (book) => __awaiter(this, void 0, void 0, function* () {
-    let req = yield readHtml(book.url);
+const readDir = async (book) => {
+    let req = await readHtml(book.url);
     return parseDir(book, subDirHtml(book, req));
-});
-const updateDir = (book) => __awaiter(this, void 0, void 0, function* () {
+};
+const updateDir = async (book) => {
     try {
-        const chars = yield readDir(book);
+        const chars = await readDir(book);
         writeChars('data/books/chars.json', chars);
         for (let x in chars) {
-            yield sleep(100);
+            await sleep(100);
             console.log(new Date());
             console.log(chars[x]);
-            const data = yield readChar(chars[x]);
+            const data = await readChar(chars[x]);
             writeCharData('data/books/chars/' + x + '.json', subCharHtml(book, data));
         }
     }
     catch (e) {
         console.log('problem with request: ' + e.message);
     }
-});
+};
 const writeChars = (path, chars) => {
     writeJson(path, { chars });
 };
