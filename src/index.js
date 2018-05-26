@@ -2,15 +2,17 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const request_1 = __importDefault(require("./request"));
 const file_1 = __importDefault(require("./file"));
-var CharcterState;
-(function (CharcterState) {
-    CharcterState[CharcterState["Init"] = 0] = "Init";
-    CharcterState[CharcterState["Done"] = 1] = "Done";
-    CharcterState[CharcterState["Error"] = 2] = "Error";
-})(CharcterState || (CharcterState = {}));
+const api = __importStar(require("./api"));
 const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 const readHtml = async (url) => {
     const option = request_1.default.parseUrl(url);
@@ -45,7 +47,7 @@ const parseCharLink = (tag, idx) => {
         create: new Date(),
         disOrder: idx,
         order: idx,
-        state: CharcterState.Init
+        state: api.CharcterState.Init
     };
     return charcter;
 };

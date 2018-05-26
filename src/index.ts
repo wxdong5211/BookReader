@@ -1,43 +1,7 @@
 import request from './request'
 import file from './file'
-
-interface Block {
-  dirStart: string,
-  dirEnd: string,
-  charStart: string,
-  charEnd: string,
-}
-
-interface BookConfig {
-  encode? : string,
-  interval? : number,
-  block: Block
-}
-
-interface Site extends BookConfig {
-  host : string,
-  protocol? : string
-}
-
-interface Book extends BookConfig {
-  url : string,
-  method? : string
-}
-
-enum CharcterState {
-  Init = 0,
-  Done = 1,
-  Error = 2,
-}
-
-interface Charcter {
-  url : string,
-  title : string,
-  create : Date,
-  disOrder? : number,
-  order : number,
-  state : CharcterState
-}
+import * as api from './api'
+import reader from './reader'
 
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
@@ -47,11 +11,11 @@ const readHtml = async(url: string) : Promise<string> => {
   return req;
 }
 
-const readChar = (char:Charcter) : Promise<string>  => {
+const readChar = (char: api.Charcter) : Promise<string>  => {
   return readHtml(char.url);
 }
 
-const subDirHtml = (book:Book, req: string): string => {
+const subDirHtml = (book:api.Book, req: string): string => {
   const start = book.block.dirStart;
   const end = book.block.dirEnd;
   req = req.substr(req.indexOf(start) + start.length);
@@ -59,7 +23,7 @@ const subDirHtml = (book:Book, req: string): string => {
   return req;
 }
 
-const subCharHtml = (book:Book, req: string): string => {
+const subCharHtml = (book:api.Book, req: string): string => {
   const start = book.block.charStart;
   const end = book.block.charEnd;
   req = req.substr(req.indexOf(start) + start.length);
@@ -67,7 +31,7 @@ const subCharHtml = (book:Book, req: string): string => {
   return req;
 }
 
-const parseCharLink = (tag: string, idx: number): Charcter => {
+const parseCharLink = (tag: string, idx: number): api.Charcter => {
   const hrefStart = 'href="'
   let href = tag.substr(tag.indexOf(hrefStart) + hrefStart.length);
   href = href.substr(0, href.indexOf('"'))
@@ -78,22 +42,22 @@ const parseCharLink = (tag: string, idx: number): Charcter => {
     create : new Date(),
     disOrder : idx,
     order : idx,
-    state : CharcterState.Init
+    state : api.CharcterState.Init
   }
   return charcter
 }
 
-const parseDir = (book:Book, req: string) : Array<Charcter> => {
+const parseDir = (book:api.Book, req: string) : Array<api.Charcter> => {
   const dirHtml = req.match(/<a.*href=".*".*>.*<\/a>/gi)
   return dirHtml ? dirHtml.map(parseCharLink) : [];
 }
 
-const readDir = async (book:Book) : Promise<Array<Charcter>>  => {
+const readDir = async (book:api.Book) : Promise<Array<api.Charcter>>  => {
   let req = await readHtml(book.url);
   return parseDir(book, subDirHtml(book, req));
 }
 
-const updateDir = async (book:Book) => {
+const updateDir = async (book:api.Book) => {
   try {
     const chars = await readDir(book);
     writeChars('data/books/chars.json', chars);
@@ -109,11 +73,11 @@ const updateDir = async (book:Book) => {
   }
 }
 
-const writeChars = (path: string, chars:Array<Charcter>) => {
+const writeChars = (path: string, chars:Array<api.Charcter>) => {
   writeJson(path, {chars})
 }
 
-const writeChar = (path: string, char:Charcter) => {
+const writeChar = (path: string, char:api.Charcter) => {
   writeJson(path, char)
 }
 
@@ -121,7 +85,7 @@ const writeCharData = (path: string, data:string) => {
   writeJson(path, {data})
 }
 
-const writeBook = (path: string, book:Book) => {
+const writeBook = (path: string, book:api.Book) => {
   writeJson(path, book)
 }
 
