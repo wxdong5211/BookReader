@@ -1,4 +1,8 @@
 
+export interface BRFactory {
+  getReader() : Reader
+}
+
 export interface Reader {
   all(): Array<Book>,
   list(param: object): Array<Book>,
@@ -29,7 +33,8 @@ export interface Site extends BookConfig {
 
 export interface Book extends BookConfig {
   url : string,
-  method? : string
+  method? : string,
+  update(): string
 }
 
 export enum CharcterState {

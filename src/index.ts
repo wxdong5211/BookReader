@@ -1,7 +1,7 @@
-import reader from './reader'
+import factory from './factory'
 
 const test = () => {
-  const r = new reader()
+  const r = factory.getReader()
   r.updateAll()
 };
 
