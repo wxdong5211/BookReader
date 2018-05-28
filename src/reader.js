@@ -62,13 +62,13 @@ const readDir = async (book) => {
 const updateDir = async (book) => {
     try {
         const chars = await readDir(book);
-        writeChars('data/books/chars.json', chars);
+        writeChars(book.location + '/chars.json', chars);
         for (let x in chars) {
             await sleep(100);
             console.log(new Date());
             console.log(chars[x]);
             const data = await readChar(chars[x]);
-            writeCharData('data/books/chars/' + x + '.json', subCharHtml(book, data));
+            writeCharData(book.location + '/chars/' + x + '.json', subCharHtml(book, data));
         }
     }
     catch (e) {
@@ -90,20 +90,28 @@ const writeBook = (path, book) => {
 const writeJson = (path, data) => {
     file_1.default.writeFile(path, JSON.stringify(data, null, 2));
 };
+const readBooks = (dirs) => {
+    return dirs.map(readBook);
+};
+const readBook = (dir) => {
+    const book = file_1.default.readJsonFile(dir + '/book.json');
+    book.location = dir;
+    return book;
+};
 const init = () => {
     return {
         "sites": file_1.default.readJsonDir('data/sites'),
-        "books": file_1.default.readJsonDir('data/books')
+        "books": readBooks(file_1.default.readSubDirs('data/books'))
     };
 };
-const book = init();
-console.log(book);
+const storge = init();
+console.log(storge);
 class ReaderImpl {
     all() {
-        return book.books;
+        return storge.books;
     }
     list(param) {
-        return book.books;
+        return storge.books;
     }
     get(id) {
         throw new Error("Method not implemented.");
@@ -118,8 +126,8 @@ class ReaderImpl {
         throw new Error("Method not implemented.");
     }
     updateAll() {
-        updateDir(book.books[0]);
-        writeBook('data/test.json', book.books[0]);
+        updateDir(storge.books[0]);
+        writeBook('data/test.json', storge.books[0]);
         return '123';
     }
 }

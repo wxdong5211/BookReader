@@ -6,6 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const factory_1 = __importDefault(require("./factory"));
 const test = () => {
     const r = factory_1.default.getReader();
-    // r.updateAll()
+    r.updateAll();
 };
 test();

@@ -4,19 +4,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
+const isFile = (path) => {
+    return fs_1.default.lstatSync(path).isFile();
+};
+const isDir = (path) => {
+    return fs_1.default.lstatSync(path).isDirectory();
+};
 const readJsonFile = (path) => {
-    const stat = fs_1.default.lstatSync(path);
-    if (stat.isFile()) {
-        const book = fs_1.default.readFileSync(path);
-        return JSON.parse(book.toString());
+    if (isFile(path)) {
+        const txt = fs_1.default.readFileSync(path);
+        return JSON.parse(txt.toString());
     }
     return null;
 };
 const readJsonDir = (path) => {
     const dirs = fs_1.default.readdirSync(path);
-    return dirs.map(d => readJsonFile(path + '/' + d)).filter(d => !!d);
+    return isDir(path) ? dirs.map(d => readJsonFile(path + '/' + d)).filter(d => !!d) : [];
+};
+const readSubDirs = (path) => {
+    const dirs = fs_1.default.readdirSync(path);
+    return isDir(path) ? dirs.map(d => path + '/' + d).filter(d => isDir(d)) : [];
 };
 const writeFile = (path, data) => {
     fs_1.default.writeFileSync(path, data);
 };
-exports.default = { readJsonFile, readJsonDir, writeFile };
+exports.default = { readJsonFile, readJsonDir, readSubDirs, writeFile };

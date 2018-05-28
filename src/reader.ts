@@ -59,13 +59,13 @@ const readDir = async (book:api.Book) : Promise<Array<api.Charcter>>  => {
 const updateDir = async (book:api.Book) => {
   try {
     const chars = await readDir(book);
-    writeChars('data/books/chars.json', chars);
+    writeChars(book.location + '/chars.json', chars);
     for (let x in chars) {
       await sleep(100)
       console.log(new Date())
       console.log(chars[x])
       const data = await readChar(chars[x])
-      writeCharData('data/books/chars/'+x+'.json', subCharHtml(book, data));
+      writeCharData(book.location + '/chars/'+x+'.json', subCharHtml(book, data));
     }
   } catch (e) {
     console.log('problem with request: ' + e.message);
@@ -92,23 +92,33 @@ const writeJson = (path: string, data:any) => {
   file.writeFile(path, JSON.stringify(data, null, 2))
 }
 
+const readBooks = (dirs: Array<string>): Array<api.Book> => {
+  return dirs.map(readBook)
+}
+
+const readBook = (dir: string): api.Book => {
+  const book = file.readJsonFile(dir + '/book.json') as api.Book
+  book.location = dir
+  return book;
+}
+
 const init = () => {
   return {
     "sites": file.readJsonDir('data/sites'),
-    "books": file.readJsonDir('data/books')
+    "books": readBooks(file.readSubDirs('data/books'))
   }
 }
 
-const book = init()
+const storge = init()
 
-console.log(book)
+console.log(storge)
 
 class ReaderImpl implements api.Reader {
   all(): api.Book[] {
-    return book.books;
+    return storge.books;
   }
   list(param: object): api.Book[] {
-    return book.books;
+    return storge.books;
   }
   get(id: string): api.Book {
     throw new Error("Method not implemented.");
@@ -123,8 +133,8 @@ class ReaderImpl implements api.Reader {
     throw new Error("Method not implemented.");
   }
   updateAll(): string {
-    updateDir(book.books[0]);
-    writeBook('data/test.json', book.books[0])
+    updateDir(storge.books[0]);
+    writeBook('data/test.json', storge.books[0])
     return '123'
   }
 }

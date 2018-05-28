@@ -33,6 +33,7 @@ export interface Site extends BookConfig {
 
 export interface Book extends BookConfig {
   url : string,
+  location : string,
   method? : string,
   update(): string
 }
