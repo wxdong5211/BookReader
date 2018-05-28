@@ -121,10 +121,15 @@ class ReaderImpl implements api.Reader {
     return storge.books;
   }
   get(id: string): api.Book {
-    throw new Error("Method not implemented.");
+    return storge.books[0];
   }
   update(book: string | api.Book): string {
-    throw new Error("Method not implemented.");
+    if(typeof book === 'string'){
+      book = this.get(book)
+    }
+    updateDir(book);
+    writeBook('data/test.json', book)
+    return '123'
   }
   add(book: api.Book): string {
     throw new Error("Method not implemented.");
@@ -133,8 +138,7 @@ class ReaderImpl implements api.Reader {
     throw new Error("Method not implemented.");
   }
   updateAll(): string {
-    updateDir(storge.books[0]);
-    writeBook('data/test.json', storge.books[0])
+    storge.books.map(this.update)
     return '123'
   }
 }
