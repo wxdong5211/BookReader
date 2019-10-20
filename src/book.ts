@@ -6,7 +6,7 @@ const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) 
 
 const readHtml = async(url: string) : Promise<string> => {
   const option = request.parseUrl(url);
-  let req = await request.request(option);
+  const req = await request.request(option);
   return req;
 }
 
@@ -40,7 +40,7 @@ const subDirHtml = (book:api.Book, req: string): string => {
 }
 
 const readDir = async (book:api.Book) : Promise<Array<api.Charcter>>  => {
-  let req = await readHtml(book.url);
+  const req = await readHtml(book.url);
   return parseDir(book, subDirHtml(book, req));
 }
 

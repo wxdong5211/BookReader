@@ -1,9 +1,9 @@
 import * as api from './api'
-import reader from './reader'
+import Reader from './reader'
 
 class BRFactory implements api.BRFactory {
   getReader() : api.Reader {
-    return new reader()
+    return new Reader()
   }
 }
 

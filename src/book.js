@@ -16,7 +16,7 @@ const api = __importStar(require("./api"));
 const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 const readHtml = async (url) => {
     const option = request_1.default.parseUrl(url);
-    let req = await request_1.default.request(option);
+    const req = await request_1.default.request(option);
     return req;
 };
 const parseCharLink = (tag, idx) => {
@@ -46,7 +46,7 @@ const subDirHtml = (book, req) => {
     return req;
 };
 const readDir = async (book) => {
-    let req = await readHtml(book.url);
+    const req = await readHtml(book.url);
     return parseDir(book, subDirHtml(book, req));
 };
 const readChar = (char) => {
