@@ -44,8 +44,12 @@ const readDir = async (book:api.Book) : Promise<Array<api.Charcter>>  => {
   return parseDir(book, subDirHtml(book, req));
 }
 
-const readChar = (char: api.Charcter) : Promise<string>  => {
-  return readHtml(char.url);
+const readChar = (book:api.Book, char: api.Charcter) : Promise<string>  => {
+  let url = char.url;
+  if(!url.startsWith('http://') || !url.startsWith('https://')){
+    url = book.url + (book.url.endsWith('/') ? '':'/') + url;
+  }
+  return readHtml(url);
 }
 
 const subCharHtml = (book:api.Book, req: string): string => {
@@ -53,23 +57,53 @@ const subCharHtml = (book:api.Book, req: string): string => {
   const end = book.block.charEnd;
   req = req.substr(req.indexOf(start) + start.length);
   req = req.substr(0, req.indexOf(end));
+  req = req.replace(/&nbsp;/g, ' ');
+  req = req.replace(/<br \/>/g, '\n');
   return req;
 }
 
-const updateDir = async (book:api.Book) => {
+const updateDirFunc = async (book:api.Book): Promise<Array<api.Charcter>> => {
   try {
     const chars = await readDir(book);
     writeChars(book.location + '/chars.json', chars);
+    return chars;
+  } catch (e) {
+    console.log('problem with request: ' + e.message);
+  }
+  return [];
+}
+
+const updateAll = async (book:api.Book) => {
+  try {
+    const chars = await updateDirFunc(book);
     for (let x in chars) {
-      await sleep(100)
-      console.log(new Date())
-      console.log(chars[x])
-      const data = await readChar(chars[x])
-      writeCharData(book.location + '/chars/'+x+'.json', subCharHtml(book, data));
+      await sleep(100);
+      await updateCharFunc(book, chars[x], x);
     }
   } catch (e) {
     console.log('problem with request: ' + e.message);
   }
+}
+
+const updateCharFunc = async (book: api.Book, char: api.Charcter, id: string) => {
+  try {
+    console.log(new Date())
+    console.log(char)
+    const data = await readChar(book, char)
+    writeCharData(book.location + '/chars/'+id+'.json', subCharHtml(book, data));
+  } catch (e) {
+    console.log('problem with request: ' + e.message);
+  }
+}
+
+const readCharsData = (book: api.Book): Array<api.Charcter> => {
+  try {
+    const data = file.readJsonFile(book.location + '/chars.json');
+    return (data||{}).chars;
+  } catch (e) {
+    console.log('problem with request: ' + e.message);
+  }
+  return [];
 }
 
 const writeChars = (path: string, chars:Array<api.Charcter>) => {
@@ -108,9 +142,23 @@ class BookImpl implements api.Book {
     this.block = book.block;
   }
   update(): string {
-    updateDir(this);
+    updateAll(this);
     writeBook('data/test.json', this);
     return '123asd';
+  }
+  updateDir(): string {
+    updateDirFunc(this);
+    return '123asd';
+  }
+  updateChar(id: number): string {
+    updateCharFunc(this, this.getChar(id), id+'');
+    return '123asd';
+  }
+  getChars(): Array<api.Charcter>{
+    return readCharsData(this);
+  }
+  getChar(id: number): api.Charcter{
+    return (this.getChars()||[])[id];
   }
 }
 

@@ -49,31 +49,65 @@ const readDir = async (book) => {
     const req = await readHtml(book.url);
     return parseDir(book, subDirHtml(book, req));
 };
-const readChar = (char) => {
-    return readHtml(char.url);
+const readChar = (book, char) => {
+    let url = char.url;
+    if (!url.startsWith('http://') || !url.startsWith('https://')) {
+        url = book.url + (book.url.endsWith('/') ? '' : '/') + url;
+    }
+    return readHtml(url);
 };
 const subCharHtml = (book, req) => {
     const start = book.block.charStart;
     const end = book.block.charEnd;
     req = req.substr(req.indexOf(start) + start.length);
     req = req.substr(0, req.indexOf(end));
+    req = req.replace(/&nbsp;/g, ' ');
+    req = req.replace(/<br \/>/g, '\n');
     return req;
 };
-const updateDir = async (book) => {
+const updateDirFunc = async (book) => {
     try {
         const chars = await readDir(book);
         writeChars(book.location + '/chars.json', chars);
+        return chars;
+    }
+    catch (e) {
+        console.log('problem with request: ' + e.message);
+    }
+    return [];
+};
+const updateAll = async (book) => {
+    try {
+        const chars = await updateDirFunc(book);
         for (let x in chars) {
             await sleep(100);
-            console.log(new Date());
-            console.log(chars[x]);
-            const data = await readChar(chars[x]);
-            writeCharData(book.location + '/chars/' + x + '.json', subCharHtml(book, data));
+            await updateCharFunc(book, chars[x], x);
         }
     }
     catch (e) {
         console.log('problem with request: ' + e.message);
     }
+};
+const updateCharFunc = async (book, char, id) => {
+    try {
+        console.log(new Date());
+        console.log(char);
+        const data = await readChar(book, char);
+        writeCharData(book.location + '/chars/' + id + '.json', subCharHtml(book, data));
+    }
+    catch (e) {
+        console.log('problem with request: ' + e.message);
+    }
+};
+const readCharsData = (book) => {
+    try {
+        const data = file_1.default.readJsonFile(book.location + '/chars.json');
+        return (data || {}).chars;
+    }
+    catch (e) {
+        console.log('problem with request: ' + e.message);
+    }
+    return [];
 };
 const writeChars = (path, chars) => {
     writeJson(path, { chars });
@@ -100,9 +134,23 @@ class BookImpl {
         this.block = book.block;
     }
     update() {
-        updateDir(this);
+        updateAll(this);
         writeBook('data/test.json', this);
         return '123asd';
+    }
+    updateDir() {
+        updateDirFunc(this);
+        return '123asd';
+    }
+    updateChar(id) {
+        updateCharFunc(this, this.getChar(id), id + '');
+        return '123asd';
+    }
+    getChars() {
+        return readCharsData(this);
+    }
+    getChar(id) {
+        return (this.getChars() || [])[id];
     }
 }
 exports.default = BookImpl;

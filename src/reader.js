@@ -29,10 +29,10 @@ class ReaderImpl {
         return storge.books;
     }
     get(id) {
-        return storge.books[0];
+        return storge.books[id];
     }
     update(book) {
-        if (typeof book === 'string') {
+        if (typeof book === 'number') {
             book = this.get(book);
         }
         book.update();

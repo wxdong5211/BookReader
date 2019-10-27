@@ -30,11 +30,11 @@ class ReaderImpl implements api.Reader {
   list(param: object): api.Book[] {
     return storge.books;
   }
-  get(id: string): api.Book {
-    return storge.books[0];
+  get(id: number): api.Book {
+    return storge.books[id];
   }
-  update(book: string | api.Book): string {
-    if(typeof book === 'string'){
+  update(book: number | api.Book): string {
+    if(typeof book === 'number'){
       book = this.get(book)
     }
     book.update();
@@ -43,7 +43,7 @@ class ReaderImpl implements api.Reader {
   add(book: api.Book): string {
     throw new Error("Method not implemented.");
   }
-  del(book: string | api.Book): string {
+  del(book: number | api.Book): string {
     throw new Error("Method not implemented.");
   }
   updateAll(): string {

@@ -6,10 +6,10 @@ export interface BRFactory {
 export interface Reader {
   all(): Array<Book>,
   list(param: object): Array<Book>,
-  get(id: string): Book,
-  update(book: string | Book): string,
+  get(id: number): Book,
+  update(book: number | Book): string,
   add(book: Book): string,
-  del(book: string | Book): string,
+  del(book: number | Book): string,
   updateAll(): string
 }
 
@@ -35,7 +35,11 @@ export interface Book extends BookConfig {
   url : string,
   location : string,
   method? : string,
-  update(): string
+  update(): string,
+  updateDir(): string
+  updateChar(id: number): string,
+  getChars(): Array<Charcter>,
+  getChar(id: number): Charcter
 }
 
 export enum CharcterState {
