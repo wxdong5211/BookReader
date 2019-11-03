@@ -93,7 +93,8 @@ const updateCharFunc = async (book, char, id) => {
         console.log(new Date());
         console.log(char);
         const data = await readChar(book, char);
-        writeCharData(book.location + '/chars/' + id + '.json', subCharHtml(book, data));
+        const charFull = Object.assign({ data: subCharHtml(book, data) }, char, { create: new Date() });
+        writeChar(book.location + '/chars/' + id + '.json', charFull);
     }
     catch (e) {
         console.log('problem with request: ' + e.message);
@@ -114,9 +115,6 @@ const writeChars = (path, chars) => {
 };
 const writeChar = (path, char) => {
     writeJson(path, char);
-};
-const writeCharData = (path, data) => {
-    writeJson(path, { data });
 };
 const writeBook = (path, book) => {
     writeJson(path, book);

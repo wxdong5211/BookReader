@@ -56,3 +56,7 @@ export interface Charcter {
   order : number,
   state : CharcterState
 }
+
+export interface CharcterFull extends Charcter {
+  data : string
+}
