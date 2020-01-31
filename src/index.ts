@@ -11,8 +11,11 @@ const test = () => {
   // console.log('getChars ret = ', ret)
   // const ret = book.getChar(0)
   // console.log('getChar ret = ', ret)
-  const ret = book.updateChar(0)
-  console.log('updateChar ret = ', ret)
+  const idx = 2;
+  const ret1 = book.updateChar(idx)
+  console.log('updateChar ret = ', ret1)
+  const ret2 = book.exportChar(idx)
+  console.log('exportChar ret = ', ret2)
 };
 
 test();

@@ -33,11 +33,13 @@ export interface Site extends BookConfig {
 
 export interface Book extends BookConfig {
   url : string,
+  name : string,
   location : string,
   method? : string,
   update(): string,
   updateDir(): string
   updateChar(id: number): string,
+  exportChar(id: number): string,
   getChars(): Array<Charcter>,
   getChar(id: number): Charcter
 }

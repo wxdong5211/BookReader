@@ -80,7 +80,7 @@ const updateAll = async (book) => {
     try {
         const chars = await updateDirFunc(book);
         for (let x in chars) {
-            await sleep(100);
+            await sleep(100); //TODO interval by config
             await updateCharFunc(book, chars[x], x);
         }
     }
@@ -106,9 +106,18 @@ const readCharsData = (book) => {
         return (data || {}).chars;
     }
     catch (e) {
-        console.log('problem with request: ' + e.message);
+        console.log('problem with readCharsData: ' + e.message);
     }
     return [];
+};
+const readCharFullData = (book, id) => {
+    try {
+        return file_1.default.readJsonFile(book.location + '/chars/' + id + '.json');
+    }
+    catch (e) {
+        console.log('problem with readCharFullData: ' + e.message);
+    }
+    return null;
 };
 const writeChars = (path, chars) => {
     writeJson(path, { chars });
@@ -122,8 +131,12 @@ const writeBook = (path, book) => {
 const writeJson = (path, data) => {
     file_1.default.writeFile(path, JSON.stringify(data, null, 2));
 };
+const writeTxt = (path, data) => {
+    file_1.default.writeFile(path, data);
+};
 class BookImpl {
     constructor(book) {
+        this.name = book.name;
         this.url = book.url;
         this.location = book.location;
         this.method = book.method;
@@ -143,6 +156,13 @@ class BookImpl {
     updateChar(id) {
         updateCharFunc(this, this.getChar(id), id + '');
         return '123asd';
+    }
+    exportChar(id) {
+        const charFull = readCharFullData(this, id);
+        if (charFull === null) {
+            return '';
+        }
+        return charFull.data || '';
     }
     getChars() {
         return readCharsData(this);

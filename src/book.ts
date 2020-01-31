@@ -77,7 +77,7 @@ const updateAll = async (book:api.Book) => {
   try {
     const chars = await updateDirFunc(book);
     for (let x in chars) {
-      await sleep(100);
+      await sleep(100); //TODO interval by config
       await updateCharFunc(book, chars[x], x);
     }
   } catch (e) {
@@ -102,9 +102,18 @@ const readCharsData = (book: api.Book): Array<api.Charcter> => {
     const data = file.readJsonFile(book.location + '/chars.json');
     return (data||{}).chars;
   } catch (e) {
-    console.log('problem with request: ' + e.message);
+    console.log('problem with readCharsData: ' + e.message);
   }
   return [];
+}
+
+const readCharFullData = (book: api.Book, id: number): api.CharcterFull | null => {
+  try {
+    return file.readJsonFile(book.location + '/chars/'+id+'.json');
+  } catch (e) {
+    console.log('problem with readCharFullData: ' + e.message);
+  }
+  return null;
 }
 
 const writeChars = (path: string, chars:Array<api.Charcter>) => {
@@ -123,7 +132,12 @@ const writeJson = (path: string, data:any) => {
   file.writeFile(path, JSON.stringify(data, null, 2))
 }
 
+const writeTxt = (path: string, data:string) => {
+  file.writeFile(path, data)
+}
+
 class BookImpl implements api.Book {
+  name: string;
   url: string;
   location: string;
   method?: string | undefined;
@@ -131,6 +145,7 @@ class BookImpl implements api.Book {
   interval?: number | undefined;
   block: api.Block;
   constructor(book: api.Book){
+    this.name = book.name;
     this.url = book.url;
     this.location = book.location;
     this.method = book.method;
@@ -150,6 +165,13 @@ class BookImpl implements api.Book {
   updateChar(id: number): string {
     updateCharFunc(this, this.getChar(id), id+'');
     return '123asd';
+  }
+  exportChar(id: number): string {
+    const charFull = readCharFullData(this, id);
+    if(charFull === null){
+      return '';
+    }
+    return charFull.data || '';
   }
   getChars(): Array<api.Charcter>{
     return readCharsData(this);
