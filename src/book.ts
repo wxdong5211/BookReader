@@ -16,6 +16,7 @@ const parseCharLink = (tag: string, idx: number): api.Charcter => {
   href = href.substr(0, href.indexOf('"'))
   const title  = tag.replace(/<\/?[^>]*>/g,'')
   const charcter = {
+    id : idx,
     url : href,
     title : title,
     create : new Date(),
@@ -76,22 +77,30 @@ const updateDirFunc = async (book:api.Book): Promise<Array<api.Charcter>> => {
 const updateAll = async (book:api.Book) => {
   try {
     const chars = await updateDirFunc(book);
-    for (let x in chars) {
-      await sleep(100); //TODO interval by config
-      await updateCharFunc(book, chars[x], x);
-    }
+    await updateChars(book, chars);
   } catch (e) {
-    console.log('problem with request: ' + e.message);
+    console.log('problem with updateAll: ' + e.message);
   }
 }
 
-const updateCharFunc = async (book: api.Book, char: api.Charcter, id: string) => {
+const updateChars = async (book:api.Book, chars: Array<api.Charcter>) => {
+  try {
+    for (let x in chars) {
+      await sleep(100); //TODO interval by config
+      await updateCharFunc(book, chars[x]);
+    }
+  } catch (e) {
+    console.log('problem with updateChars: ' + e.message);
+  }
+}
+
+const updateCharFunc = async (book: api.Book, char: api.Charcter) => {
   try {
     console.log(new Date())
     console.log(char)
     const data = await readChar(book, char)
     const charFull = Object.assign({data:subCharHtml(book, data)}, char, {create : new Date()});
-    writeChar(book.location + '/chars/'+id+'.json', charFull);
+    writeChar(book.location + '/chars/'+char.id+'.json', charFull);
   } catch (e) {
     console.log('problem with request: ' + e.message);
   }
@@ -163,7 +172,16 @@ class BookImpl implements api.Book {
     return '123asd';
   }
   updateChar(id: number): string {
-    updateCharFunc(this, this.getChar(id), id+'');
+    updateCharFunc(this, this.getChar(id));
+    return '123asd';
+  }
+  async updateCharUntil(from: number, until: number): Promise<string> {
+    try {
+      const chars = this.getCharsUntil(from, until);
+      await updateChars(this, chars);
+    } catch (e) {
+      console.log('problem with updateCharUntil: ' + e.message);
+    }
     return '123asd';
   }
   exportChar(id: number): string {
@@ -171,13 +189,25 @@ class BookImpl implements api.Book {
     if(charFull === null){
       return '';
     }
-    return charFull.data || '';
+    // const data = (charFull.data || '').replace(/\n/g, '<br/>\n');
+    const data = charFull.data || '';
+    const title = charFull.title || '';
+    // return `<div><h3>${title}</h3><p>${data}</p></div>`;
+    return `${title}\n${data}`;
+  }
+  exportCharUntil(from: number, until: number): string {
+    const chars = this.getCharsUntil(from, until) || [];
+    return chars.map(c => this.exportChar(c.id)).join('\n');
   }
   getChars(): Array<api.Charcter>{
     return readCharsData(this);
   }
   getChar(id: number): api.Charcter{
     return (this.getChars()||[])[id];
+  }
+  getCharsUntil(from: number, until: number): Array<api.Charcter> {
+    const chars = (this.getChars()||[])
+    return chars.slice(from, until);
   }
 }
 

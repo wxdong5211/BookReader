@@ -52,6 +52,12 @@ const request = (options, data) => new Promise((resolve, reject) => {
         });
     };
     const httpMod = options.protocol === 'https:' ? https_1.default.request : http_1.default.request;
+    if (options.protocol === 'https:') {
+        options.rejectUnauthorized = false;
+        // pool: false,
+        // strictSSL: false,
+        // rejectUnauthorized: false,
+    }
     const req = httpMod(options, cb);
     req.on('error', e => reject(e));
     if (data) {

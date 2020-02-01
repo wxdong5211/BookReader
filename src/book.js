@@ -25,6 +25,7 @@ const parseCharLink = (tag, idx) => {
     href = href.substr(0, href.indexOf('"'));
     const title = tag.replace(/<\/?[^>]*>/g, '');
     const charcter = {
+        id: idx,
         url: href,
         title: title,
         create: new Date(),
@@ -79,22 +80,30 @@ const updateDirFunc = async (book) => {
 const updateAll = async (book) => {
     try {
         const chars = await updateDirFunc(book);
+        await updateChars(book, chars);
+    }
+    catch (e) {
+        console.log('problem with updateAll: ' + e.message);
+    }
+};
+const updateChars = async (book, chars) => {
+    try {
         for (let x in chars) {
             await sleep(100); //TODO interval by config
-            await updateCharFunc(book, chars[x], x);
+            await updateCharFunc(book, chars[x]);
         }
     }
     catch (e) {
-        console.log('problem with request: ' + e.message);
+        console.log('problem with updateChars: ' + e.message);
     }
 };
-const updateCharFunc = async (book, char, id) => {
+const updateCharFunc = async (book, char) => {
     try {
         console.log(new Date());
         console.log(char);
         const data = await readChar(book, char);
         const charFull = Object.assign({ data: subCharHtml(book, data) }, char, { create: new Date() });
-        writeChar(book.location + '/chars/' + id + '.json', charFull);
+        writeChar(book.location + '/chars/' + char.id + '.json', charFull);
     }
     catch (e) {
         console.log('problem with request: ' + e.message);
@@ -154,7 +163,17 @@ class BookImpl {
         return '123asd';
     }
     updateChar(id) {
-        updateCharFunc(this, this.getChar(id), id + '');
+        updateCharFunc(this, this.getChar(id));
+        return '123asd';
+    }
+    async updateCharUntil(from, until) {
+        try {
+            const chars = this.getCharsUntil(from, until);
+            await updateChars(this, chars);
+        }
+        catch (e) {
+            console.log('problem with updateCharUntil: ' + e.message);
+        }
         return '123asd';
     }
     exportChar(id) {
@@ -162,13 +181,25 @@ class BookImpl {
         if (charFull === null) {
             return '';
         }
-        return charFull.data || '';
+        // const data = (charFull.data || '').replace(/\n/g, '<br/>\n');
+        const data = charFull.data || '';
+        const title = charFull.title || '';
+        // return `<div><h3>${title}</h3><p>${data}</p></div>`;
+        return `${title}\n${data}`;
+    }
+    exportCharUntil(from, until) {
+        const chars = this.getCharsUntil(from, until) || [];
+        return chars.map(c => this.exportChar(c.id)).join('\n');
     }
     getChars() {
         return readCharsData(this);
     }
     getChar(id) {
         return (this.getChars() || [])[id];
+    }
+    getCharsUntil(from, until) {
+        const chars = (this.getChars() || []);
+        return chars.slice(from, until);
     }
 }
 exports.default = BookImpl;

@@ -1,4 +1,5 @@
 import url from 'url'
+import tls from 'tls'
 import http from 'http'
 import https from 'https'
 import zlib from 'zlib'
@@ -23,7 +24,7 @@ const parseUrl = (urlStr:string) : http.RequestOptions => {
   return option;
 }
 
-const request = (options: http.RequestOptions, data?: any) : Promise<string> => new Promise<string>( (resolve,reject) => {
+const request = (options: http.RequestOptions &  { rejectUnauthorized?: boolean }, data?: any) : Promise<string> => new Promise<string>( (resolve,reject) => {
   const cb = (res: http.IncomingMessage) => {
     const rawData: Array<Buffer> = [];
     res.on('data', (chunk) => {
@@ -48,6 +49,12 @@ const request = (options: http.RequestOptions, data?: any) : Promise<string> => 
     });
   }
   const httpMod = options.protocol === 'https:' ? https.request : http.request;
+  if(options.protocol === 'https:'){
+    options.rejectUnauthorized = false;
+    // pool: false,
+    // strictSSL: false,
+    // rejectUnauthorized: false,
+  }
   const req = httpMod(options, cb);
   req.on('error', e => reject(e));
   if(data){

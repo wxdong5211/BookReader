@@ -39,9 +39,12 @@ export interface Book extends BookConfig {
   update(): string,
   updateDir(): string
   updateChar(id: number): string,
+  updateCharUntil(from: number, until: number): Promise<string>,
   exportChar(id: number): string,
+  exportCharUntil(from: number, until: number): string,
   getChars(): Array<Charcter>,
-  getChar(id: number): Charcter
+  getChar(id: number): Charcter,
+  getCharsUntil(from: number, until: number): Array<Charcter>
 }
 
 export enum CharcterState {
@@ -51,6 +54,7 @@ export enum CharcterState {
 }
 
 export interface Charcter {
+  id : number,
   url : string,
   title : string,
   create : Date,
