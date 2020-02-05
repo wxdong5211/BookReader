@@ -1,5 +1,4 @@
 import factory from './factory'
-import {sortChars}  from './sort'
 
 const test = () => {
   const r = factory.getReader()
