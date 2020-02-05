@@ -28,8 +28,10 @@ const test = () => {
   // console.log('getCharsLength ret = ', book.getCharsLength())
   // const ret = book.updateCharScope(33)
   // console.log('updateCharScope ret = ', ret)
-  const ret = book.exportCharScope(100)
-  console.log('exportCharScope ret = ', ret)
+  // const ret = book.exportCharScope(100)
+  // console.log('exportCharScope ret = ', ret)
+  const ret = book.exportTxtScope(100)
+  console.log('exportTxtScope ret = ', ret)
 };
 
 test();

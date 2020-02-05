@@ -42,6 +42,7 @@ export interface Book extends BookConfig {
   updateCharScope(from: number, until ?: number): Promise<string>,
   exportChar(id: number): string,
   exportCharScope(from: number, until ?: number): string,
+  exportTxtScope(from: number, until ?: number): string,
   getCharsLength(): number,
   getChars(): Array<Charcter>,
   getChar(id: number): Charcter,

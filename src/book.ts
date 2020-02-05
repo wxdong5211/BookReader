@@ -200,6 +200,12 @@ class BookImpl implements api.Book {
     const head = `${this.name}\n`;
     return head + chars.map(c => this.exportChar(c.id)).join('\n');
   }
+  exportTxtScope(from: number, until ?: number): string {
+    const txt = this.exportCharScope(from, until);
+    const file = `${this.name}.txt`;
+    writeTxt(this.location + '/'+ file , txt);
+    return 'asdsad';
+  }
   getChars(): Array<api.Charcter>{
     return readCharsData(this);
   }
