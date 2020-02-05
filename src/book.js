@@ -166,9 +166,9 @@ class BookImpl {
         updateCharFunc(this, this.getChar(id));
         return '123asd';
     }
-    async updateCharUntil(from, until) {
+    async updateCharScope(from, until) {
         try {
-            const chars = this.getCharsUntil(from, until);
+            const chars = this.getCharsScope(from, until);
             await updateChars(this, chars);
         }
         catch (e) {
@@ -187,17 +187,21 @@ class BookImpl {
         // return `<div><h3>${title}</h3><p>${data}</p></div>`;
         return `${title}\n${data}`;
     }
-    exportCharUntil(from, until) {
-        const chars = this.getCharsUntil(from, until) || [];
-        return chars.map(c => this.exportChar(c.id)).join('\n');
+    exportCharScope(from, until) {
+        const chars = this.getCharsScope(from, until) || [];
+        const head = `${this.name}\n`;
+        return head + chars.map(c => this.exportChar(c.id)).join('\n');
     }
     getChars() {
         return readCharsData(this);
     }
+    getCharsLength() {
+        return (this.getChars() || []).length;
+    }
     getChar(id) {
         return (this.getChars() || [])[id];
     }
-    getCharsUntil(from, until) {
+    getCharsScope(from, until) {
         const chars = (this.getChars() || []);
         return chars.slice(from, until);
     }

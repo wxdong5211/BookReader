@@ -14,17 +14,22 @@ const test = () => {
   
   // const ret = book.getChar(0)
   // console.log('getChar ret = ', ret)
-  // const ret = book.getCharsUntil(1,3)
-  // console.log('getCharsUntil ret = ', ret)
+  // const ret = book.getCharsScope(1,3)
+  // console.log('getCharsScope ret = ', ret)
   // const idx = 4;
   // const ret1 = book.updateChar(idx)
   // console.log('updateChar ret = ', ret1)
   // const ret2 = book.exportChar(idx)
   // console.log('exportChar ret = ', ret2)
-  // const ret = book.updateCharUntil(1, 10)
-  // console.log('updateCharUntil ret = ', ret)
-  // const ret = book.exportCharUntil(1, 5)
-  // console.log('exportCharUntil ret = ', ret)
+  // const ret = book.updateCharScope(1, 10)
+  // console.log('updateCharScope ret = ', ret)
+  // const ret = book.exportCharScope(1, 5)
+  // console.log('exportCharScope ret = ', ret)
+  // console.log('getCharsLength ret = ', book.getCharsLength())
+  // const ret = book.updateCharScope(33)
+  // console.log('updateCharScope ret = ', ret)
+  const ret = book.exportCharScope(100)
+  console.log('exportCharScope ret = ', ret)
 };
 
 test();

@@ -175,9 +175,9 @@ class BookImpl implements api.Book {
     updateCharFunc(this, this.getChar(id));
     return '123asd';
   }
-  async updateCharUntil(from: number, until: number): Promise<string> {
+  async updateCharScope(from: number, until ?: number): Promise<string> {
     try {
-      const chars = this.getCharsUntil(from, until);
+      const chars = this.getCharsScope(from, until);
       await updateChars(this, chars);
     } catch (e) {
       console.log('problem with updateCharUntil: ' + e.message);
@@ -195,17 +195,21 @@ class BookImpl implements api.Book {
     // return `<div><h3>${title}</h3><p>${data}</p></div>`;
     return `${title}\n${data}`;
   }
-  exportCharUntil(from: number, until: number): string {
-    const chars = this.getCharsUntil(from, until) || [];
-    return chars.map(c => this.exportChar(c.id)).join('\n');
+  exportCharScope(from: number, until ?: number): string {
+    const chars = this.getCharsScope(from, until) || [];
+    const head = `${this.name}\n`;
+    return head + chars.map(c => this.exportChar(c.id)).join('\n');
   }
   getChars(): Array<api.Charcter>{
     return readCharsData(this);
   }
+  getCharsLength(): number{
+    return (this.getChars()||[]).length
+  }
   getChar(id: number): api.Charcter{
     return (this.getChars()||[])[id];
   }
-  getCharsUntil(from: number, until: number): Array<api.Charcter> {
+  getCharsScope(from: number, until ?: number): Array<api.Charcter> {
     const chars = (this.getChars()||[])
     return chars.slice(from, until);
   }
