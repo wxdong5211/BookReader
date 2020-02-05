@@ -1,7 +1,4 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -9,14 +6,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const request_1 = __importDefault(require("./request"));
+const request = __importStar(require("./request"));
 const file_1 = __importDefault(require("./file"));
 const api = __importStar(require("./api"));
 const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 const readHtml = async (url) => {
-    const option = request_1.default.parseUrl(url);
-    const req = await request_1.default.request(option);
+    const option = request.parseUrl(url);
+    const req = await request.request(option);
     return req;
 };
 const parseCharLink = (tag, idx) => {

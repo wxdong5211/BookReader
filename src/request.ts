@@ -1,12 +1,11 @@
 import url from 'url'
-import tls from 'tls'
 import http from 'http'
 import https from 'https'
 import zlib from 'zlib'
 
 import iconv from 'iconv-lite'
 
-const parseUrl = (urlStr:string) : http.RequestOptions => {
+export const parseUrl = (urlStr:string) : http.RequestOptions => {
   const urlObj = url.parse(urlStr)
   const option = {
     protocol: urlObj.protocol,
@@ -24,7 +23,7 @@ const parseUrl = (urlStr:string) : http.RequestOptions => {
   return option;
 }
 
-const request = (options: http.RequestOptions &  { rejectUnauthorized?: boolean }, data?: any) : Promise<string> => new Promise<string>( (resolve,reject) => {
+export const request = (options: http.RequestOptions &  { rejectUnauthorized?: boolean }, data?: any) : Promise<string> => new Promise<string>( (resolve,reject) => {
   const cb = (res: http.IncomingMessage) => {
     const rawData: Array<Buffer> = [];
     res.on('data', (chunk) => {
@@ -63,4 +62,3 @@ const request = (options: http.RequestOptions &  { rejectUnauthorized?: boolean 
   req.end();
 })
 
-export default {request, parseUrl};

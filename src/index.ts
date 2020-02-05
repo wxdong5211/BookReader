@@ -1,4 +1,5 @@
 import factory from './factory'
+import {sortChars}  from './sort'
 
 const test = () => {
   const r = factory.getReader()
@@ -9,6 +10,9 @@ const test = () => {
   // console.log('updateDir ret = ', ret)
   // const ret = book.getChars()
   // console.log('getChars ret = ', ret)
+  // const ret1 = sortChars(ret)
+  // ret1.forEach(r=>console.log(r.title))
+  
   // const ret = book.getChar(0)
   // console.log('getChar ret = ', ret)
   // const ret = book.getCharsUntil(1,3)
@@ -20,8 +24,8 @@ const test = () => {
   // console.log('exportChar ret = ', ret2)
   // const ret = book.updateCharUntil(1, 10)
   // console.log('updateCharUntil ret = ', ret)
-  const ret = book.exportCharUntil(1, 5)
-  console.log('exportCharUntil ret = ', ret)
+  // const ret = book.exportCharUntil(1, 5)
+  // console.log('exportCharUntil ret = ', ret)
 };
 
 test();

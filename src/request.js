@@ -8,7 +8,7 @@ const http_1 = __importDefault(require("http"));
 const https_1 = __importDefault(require("https"));
 const zlib_1 = __importDefault(require("zlib"));
 const iconv_lite_1 = __importDefault(require("iconv-lite"));
-const parseUrl = (urlStr) => {
+exports.parseUrl = (urlStr) => {
     const urlObj = url_1.default.parse(urlStr);
     const option = {
         protocol: urlObj.protocol,
@@ -25,7 +25,7 @@ const parseUrl = (urlStr) => {
     console.log(option);
     return option;
 };
-const request = (options, data) => new Promise((resolve, reject) => {
+exports.request = (options, data) => new Promise((resolve, reject) => {
     const cb = (res) => {
         const rawData = [];
         res.on('data', (chunk) => {
@@ -65,4 +65,3 @@ const request = (options, data) => new Promise((resolve, reject) => {
     }
     req.end();
 });
-exports.default = { request, parseUrl };
