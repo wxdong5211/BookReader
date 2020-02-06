@@ -26,7 +26,7 @@ const readSubDirs = (path: fs.PathLike): Array<string> => {
   return isDir(path) ? dirs.map(d => path+'/'+d).filter(d => isDir(d)) : []
 }
 
-const writeFile = (path: fs.PathLike, data: string): void => {
+const writeFile = (path: fs.PathLike, data: any): void => {
   fs.writeFileSync(path, data)
 }
 

@@ -3,7 +3,7 @@ import http from 'http'
 import https from 'https'
 import zlib from 'zlib'
 
-import iconv from 'iconv-lite'
+import {decode} from './codec'
 
 export const parseUrl = (urlStr:string) : http.RequestOptions => {
   const urlObj = url.parse(urlStr)
@@ -38,7 +38,7 @@ export const request = (options: http.RequestOptions &  { rejectUnauthorized?: b
         const tryStr = newBuffer.toString()
         const meta = tryStr.match(/<meta\shttp-equiv="Content-Type"\scontent="text\/html;\scharset=([^\"]*)"\s\/>/i)
         if(meta && meta.length > 1 && meta[1] !== 'utf-8'){
-          resolve(iconv.decode(newBuffer, meta[1]));
+          resolve(decode(newBuffer, meta[1]));
         }else{
           resolve(tryStr);
         }

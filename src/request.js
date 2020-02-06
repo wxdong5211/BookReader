@@ -7,7 +7,7 @@ const url_1 = __importDefault(require("url"));
 const http_1 = __importDefault(require("http"));
 const https_1 = __importDefault(require("https"));
 const zlib_1 = __importDefault(require("zlib"));
-const iconv_lite_1 = __importDefault(require("iconv-lite"));
+const codec_1 = require("./codec");
 exports.parseUrl = (urlStr) => {
     const urlObj = url_1.default.parse(urlStr);
     const option = {
@@ -40,7 +40,7 @@ exports.request = (options, data) => new Promise((resolve, reject) => {
                 const tryStr = newBuffer.toString();
                 const meta = tryStr.match(/<meta\shttp-equiv="Content-Type"\scontent="text\/html;\scharset=([^\"]*)"\s\/>/i);
                 if (meta && meta.length > 1 && meta[1] !== 'utf-8') {
-                    resolve(iconv_lite_1.default.decode(newBuffer, meta[1]));
+                    resolve(codec_1.decode(newBuffer, meta[1]));
                 }
                 else {
                     resolve(tryStr);

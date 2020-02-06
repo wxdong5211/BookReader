@@ -13,6 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const request = __importStar(require("./request"));
 const file_1 = __importDefault(require("./file"));
 const api = __importStar(require("./api"));
+const codec_1 = require("./codec");
 const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 const readHtml = async (url) => {
     const option = request.parseUrl(url);
@@ -195,7 +196,13 @@ class BookImpl {
     exportTxtScope(from, until) {
         const txt = this.exportCharScope(from, until);
         const file = `${this.name}.txt`;
-        writeTxt(this.location + '/' + file, txt);
+        const encodeCfg = this.encode;
+        if (encodeCfg) {
+            writeTxt(this.location + '/' + file, codec_1.encode(txt, encodeCfg));
+        }
+        else {
+            writeTxt(this.location + '/' + file, txt);
+        }
         return 'asdsad';
     }
     getChars() {

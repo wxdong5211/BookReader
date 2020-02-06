@@ -1,6 +1,7 @@
 import * as request from './request'
 import file from './file'
 import * as api from './api'
+import {encode} from './codec'
 
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
@@ -141,7 +142,7 @@ const writeJson = (path: string, data:any) => {
   file.writeFile(path, JSON.stringify(data, null, 2))
 }
 
-const writeTxt = (path: string, data:string) => {
+const writeTxt = (path: string, data:any) => {
   file.writeFile(path, data)
 }
 
@@ -203,7 +204,12 @@ class BookImpl implements api.Book {
   exportTxtScope(from: number, until ?: number): string {
     const txt = this.exportCharScope(from, until);
     const file = `${this.name}.txt`;
-    writeTxt(this.location + '/'+ file , txt);
+    const encodeCfg = this.encode;
+    if(encodeCfg){
+      writeTxt(this.location + '/'+ file , encode(txt, encodeCfg));
+    }else{
+      writeTxt(this.location + '/'+ file , txt);
+    }
     return 'asdsad';
   }
   getChars(): Array<api.Charcter>{
