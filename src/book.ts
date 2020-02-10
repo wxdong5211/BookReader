@@ -2,6 +2,7 @@ import * as request from './request'
 import file from './file'
 import * as api from './api'
 import {encode} from './codec'
+import { write } from 'fs';
 
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
@@ -67,7 +68,7 @@ const subCharHtml = (book:api.Book, req: string): string => {
 const updateDirFunc = async (book:api.Book): Promise<Array<api.Charcter>> => {
   try {
     const chars = await readDir(book);
-    writeChars(book.location + '/chars.json', chars);
+    writeBookChars(book, chars);
     return chars;
   } catch (e) {
     console.log('problem with request: ' + e.message);
@@ -78,32 +79,38 @@ const updateDirFunc = async (book:api.Book): Promise<Array<api.Charcter>> => {
 const updateAll = async (book:api.Book) => {
   try {
     const chars = await updateDirFunc(book);
-    await updateChars(book, chars);
+    await updateChars(book, chars, false);
   } catch (e) {
     console.log('problem with updateAll: ' + e.message);
   }
 }
 
-const updateChars = async (book:api.Book, chars: Array<api.Charcter>) => {
+const updateChars = async (book:api.Book, chars: Array<api.Charcter>, force: boolean) => {
   try {
     for (let x in chars) {
       await sleep(100); //TODO interval by config
-      await updateCharFunc(book, chars[x]);
+      await updateCharFunc(book, chars[x], force);
     }
   } catch (e) {
     console.log('problem with updateChars: ' + e.message);
   }
+  writeBookChars(book, chars)
 }
 
-const updateCharFunc = async (book: api.Book, char: api.Charcter) => {
+const updateCharFunc = async (book: api.Book, char: api.Charcter, force: boolean) => {
+  if(!force && char.state === api.CharcterState.Done){
+    return
+  }
   try {
     console.log(new Date())
     console.log(char)
     const data = await readChar(book, char)
-    const charFull = Object.assign({data:subCharHtml(book, data)}, char, {create : new Date()});
-    writeChar(book.location + '/chars/'+char.id+'.json', charFull);
+    const charFull = Object.assign({data:subCharHtml(book, data)}, char, {create : new Date(), state: api.CharcterState.Done});
+    writeBookChar(book, charFull);
+    char.state = api.CharcterState.Done;
   } catch (e) {
     console.log('problem with request: ' + e.message);
+    char.state = api.CharcterState.Error;
   }
 }
 
@@ -126,12 +133,12 @@ const readCharFullData = (book: api.Book, id: number): api.CharcterFull | null =
   return null;
 }
 
-const writeChars = (path: string, chars:Array<api.Charcter>) => {
-  writeJson(path, {chars})
+const writeBookChars = (book: api.Book, chars:Array<api.Charcter>) => {
+  writeJson(book.location + '/chars.json', {chars})
 }
 
-const writeChar = (path: string, char:api.CharcterFull) => {
-  writeJson(path, char)
+const writeBookChar = (book: api.Book, char:api.CharcterFull) => {
+  writeJson(book.location + '/chars/'+char.id+'.json', char)
 }
 
 const writeBook = (path: string, book:api.Book) => {
@@ -173,13 +180,13 @@ class BookImpl implements api.Book {
     return '123asd';
   }
   updateChar(id: number): string {
-    updateCharFunc(this, this.getChar(id));
+    updateCharFunc(this, this.getChar(id), true);
     return '123asd';
   }
   async updateCharScope(from: number, until ?: number): Promise<string> {
     try {
       const chars = this.getCharsScope(from, until);
-      await updateChars(this, chars);
+      await updateChars(this, chars, false);
     } catch (e) {
       console.log('problem with updateCharUntil: ' + e.message);
     }
@@ -216,10 +223,34 @@ class BookImpl implements api.Book {
     return readCharsData(this);
   }
   getCharsLength(): number{
-    return (this.getChars()||[]).length
+    return (this.getChars()||[]).length;
   }
   getChar(id: number): api.Charcter{
-    return (this.getChars()||[])[id];
+    return (this.getCharsScope(id, id + 1)||[])[0];
+  }
+  updateCharState(state: api.CharcterState, id: number): void{
+    this.updateCharStateScope(state, id, id + 1)
+  }
+  updateCharStateScope(state: api.CharcterState, from: number, until ?: number): void{
+    const chars = (this.getChars()||[]);
+    const arr = chars.slice(from, until);
+    let tag = false;
+    for (let x in arr) {
+      const id = arr[x].id
+      const charFull = readCharFullData(this, id);
+      if(charFull !== null){
+        tag = true;
+        charFull.state = state;
+        writeBookChar(this, charFull);
+        const char = chars[id];
+        if(char){
+          char.state = state;
+        }
+      }
+    }
+    if(tag){
+      writeBookChars(this, chars)
+    }
   }
   getCharsScope(from: number, until ?: number): Array<api.Charcter> {
     const chars = (this.getChars()||[])

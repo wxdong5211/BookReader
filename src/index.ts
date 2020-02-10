@@ -26,12 +26,16 @@ const test = () => {
   // const ret = book.exportCharScope(1, 5)
   // console.log('exportCharScope ret = ', ret)
   // console.log('getCharsLength ret = ', book.getCharsLength())
-  // const ret = book.updateCharScope(33)
+  // const ret = book.updateCharScope(0)
   // console.log('updateCharScope ret = ', ret)
   // const ret = book.exportCharScope(100)
   // console.log('exportCharScope ret = ', ret)
-  const ret = book.exportTxtScope(100)
-  console.log('exportTxtScope ret = ', ret)
+  // book.updateCharState(1, 1)
+  // console.log('updateCharState')
+  // book.updateCharStateScope(1, 0)
+  // console.log('updateCharStateScope')
+  // const ret = book.exportTxtScope(100)
+  // console.log('exportTxtScope ret = ', ret)
 };
 
 test();

@@ -46,6 +46,8 @@ export interface Book extends BookConfig {
   getCharsLength(): number,
   getChars(): Array<Charcter>,
   getChar(id: number): Charcter,
+  updateCharState(state: CharcterState, id: number): void,
+  updateCharStateScope(state: CharcterState, from: number, until ?: number): void,
   getCharsScope(from: number, until ?: number): Array<Charcter>
 }
 

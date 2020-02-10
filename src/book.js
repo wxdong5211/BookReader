@@ -70,7 +70,7 @@ const subCharHtml = (book, req) => {
 const updateDirFunc = async (book) => {
     try {
         const chars = await readDir(book);
-        writeChars(book.location + '/chars.json', chars);
+        writeBookChars(book, chars);
         return chars;
     }
     catch (e) {
@@ -81,33 +81,39 @@ const updateDirFunc = async (book) => {
 const updateAll = async (book) => {
     try {
         const chars = await updateDirFunc(book);
-        await updateChars(book, chars);
+        await updateChars(book, chars, false);
     }
     catch (e) {
         console.log('problem with updateAll: ' + e.message);
     }
 };
-const updateChars = async (book, chars) => {
+const updateChars = async (book, chars, force) => {
     try {
         for (let x in chars) {
             await sleep(100); //TODO interval by config
-            await updateCharFunc(book, chars[x]);
+            await updateCharFunc(book, chars[x], force);
         }
     }
     catch (e) {
         console.log('problem with updateChars: ' + e.message);
     }
+    writeBookChars(book, chars);
 };
-const updateCharFunc = async (book, char) => {
+const updateCharFunc = async (book, char, force) => {
+    if (!force && char.state === api.CharcterState.Done) {
+        return;
+    }
     try {
         console.log(new Date());
         console.log(char);
         const data = await readChar(book, char);
-        const charFull = Object.assign({ data: subCharHtml(book, data) }, char, { create: new Date() });
-        writeChar(book.location + '/chars/' + char.id + '.json', charFull);
+        const charFull = Object.assign({ data: subCharHtml(book, data) }, char, { create: new Date(), state: api.CharcterState.Done });
+        writeBookChar(book, charFull);
+        char.state = api.CharcterState.Done;
     }
     catch (e) {
         console.log('problem with request: ' + e.message);
+        char.state = api.CharcterState.Error;
     }
 };
 const readCharsData = (book) => {
@@ -129,11 +135,11 @@ const readCharFullData = (book, id) => {
     }
     return null;
 };
-const writeChars = (path, chars) => {
-    writeJson(path, { chars });
+const writeBookChars = (book, chars) => {
+    writeJson(book.location + '/chars.json', { chars });
 };
-const writeChar = (path, char) => {
-    writeJson(path, char);
+const writeBookChar = (book, char) => {
+    writeJson(book.location + '/chars/' + char.id + '.json', char);
 };
 const writeBook = (path, book) => {
     writeJson(path, book);
@@ -164,13 +170,13 @@ class BookImpl {
         return '123asd';
     }
     updateChar(id) {
-        updateCharFunc(this, this.getChar(id));
+        updateCharFunc(this, this.getChar(id), true);
         return '123asd';
     }
     async updateCharScope(from, until) {
         try {
             const chars = this.getCharsScope(from, until);
-            await updateChars(this, chars);
+            await updateChars(this, chars, false);
         }
         catch (e) {
             console.log('problem with updateCharUntil: ' + e.message);
@@ -212,7 +218,31 @@ class BookImpl {
         return (this.getChars() || []).length;
     }
     getChar(id) {
-        return (this.getChars() || [])[id];
+        return (this.getCharsScope(id, id + 1) || [])[0];
+    }
+    updateCharState(state, id) {
+        this.updateCharStateScope(state, id, id + 1);
+    }
+    updateCharStateScope(state, from, until) {
+        const chars = (this.getChars() || []);
+        const arr = chars.slice(from, until);
+        let tag = false;
+        for (let x in arr) {
+            const id = arr[x].id;
+            const charFull = readCharFullData(this, id);
+            if (charFull !== null) {
+                tag = true;
+                charFull.state = state;
+                writeBookChar(this, charFull);
+                const char = chars[id];
+                if (char) {
+                    char.state = state;
+                }
+            }
+        }
+        if (tag) {
+            writeBookChars(this, chars);
+        }
     }
     getCharsScope(from, until) {
         const chars = (this.getChars() || []);
