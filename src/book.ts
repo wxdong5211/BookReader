@@ -2,7 +2,6 @@ import * as request from './request'
 import file from './file'
 import * as api from './api'
 import {encode} from './codec'
-import { write } from 'fs';
 
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
