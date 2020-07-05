@@ -8,6 +8,10 @@ const isDir = (path: fs.PathLike): boolean => {
   return fs.lstatSync(path).isDirectory()
 }
 
+const mkDir = (path: fs.PathLike): void => {
+  fs.mkdirSync(path)
+}
+
 const readJsonFile = (path: fs.PathLike): any => {
   if(isFile(path)){
     const txt = fs.readFileSync(path)
@@ -30,4 +34,4 @@ const writeFile = (path: fs.PathLike, data: any): void => {
   fs.writeFileSync(path, data)
 }
 
-export default {readJsonFile, readJsonDir, readSubDirs, writeFile};
+export default {isFile, isDir, mkDir, readJsonFile, readJsonDir, readSubDirs, writeFile};

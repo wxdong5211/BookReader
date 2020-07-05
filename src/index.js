@@ -7,7 +7,7 @@ const factory_1 = __importDefault(require("./factory"));
 const test = () => {
     const r = factory_1.default.getReader();
     // r.updateAll()
-    const book = r.get(1);
+    const book = r.get(3);
     console.log('get book = ', book);
     // const ret = book.updateDir()
     // console.log('updateDir ret = ', ret)
@@ -29,7 +29,7 @@ const test = () => {
     // const ret = book.exportCharScope(1, 5)
     // console.log('exportCharScope ret = ', ret)
     // console.log('getCharsLength ret = ', book.getCharsLength())
-    // const ret = book.updateCharScope(0)
+    // const ret = book.updateCharScope(321)
     // console.log('updateCharScope ret = ', ret)
     // const ret = book.exportCharScope(100)
     // console.log('exportCharScope ret = ', ret)
@@ -37,7 +37,7 @@ const test = () => {
     // console.log('updateCharState')
     // book.updateCharStateScope(1, 0)
     // console.log('updateCharStateScope')
-    const ret = book.exportTxtScope(100);
+    const ret = book.exportTxtScope(0);
     console.log('exportTxtScope ret = ', ret);
 };
 test();

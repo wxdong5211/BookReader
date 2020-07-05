@@ -10,6 +10,9 @@ const isFile = (path) => {
 const isDir = (path) => {
     return fs_1.default.lstatSync(path).isDirectory();
 };
+const mkDir = (path) => {
+    fs_1.default.mkdirSync(path);
+};
 const readJsonFile = (path) => {
     if (isFile(path)) {
         const txt = fs_1.default.readFileSync(path);
@@ -28,4 +31,4 @@ const readSubDirs = (path) => {
 const writeFile = (path, data) => {
     fs_1.default.writeFileSync(path, data);
 };
-exports.default = { readJsonFile, readJsonDir, readSubDirs, writeFile };
+exports.default = { isFile, isDir, mkDir, readJsonFile, readJsonDir, readSubDirs, writeFile };

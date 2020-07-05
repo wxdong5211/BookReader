@@ -54,7 +54,15 @@ const readDir = async (book) => {
 const readChar = (book, char) => {
     let url = char.url;
     if (!url.startsWith('http://') || !url.startsWith('https://')) {
-        url = book.url + (book.url.endsWith('/') ? '' : '/') + url;
+        if (url.startsWith('/')) {
+            const proIdx = book.url.indexOf('//');
+            const pathIdx = book.url.indexOf('/', proIdx + 2);
+            const domain = book.url.substr(0, pathIdx);
+            url = domain + url;
+        }
+        else {
+            url = book.url + (book.url.endsWith('/') ? '' : '/') + url;
+        }
     }
     return readHtml(url);
 };
