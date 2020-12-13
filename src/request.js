@@ -37,6 +37,8 @@ exports.request = (options, data) => new Promise((resolve, reject) => {
                 if (res.headers['content-encoding'] === 'gzip') {
                     newBuffer = zlib_1.default.gunzipSync(newBuffer);
                 }
+                console.log('headers', res.headers);
+                console.log('statusCode', res.statusCode);
                 const tryStr = newBuffer.toString();
                 const meta = tryStr.match(/<meta\shttp-equiv="Content-Type"\scontent="text\/html;\scharset=([^\"]*)"\s\/>/i);
                 if (meta && meta.length > 1 && meta[1] !== 'utf-8') {

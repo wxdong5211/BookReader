@@ -36,6 +36,7 @@ export interface Book extends BookConfig {
   name : string,
   location : string,
   method? : string,
+  commonUrlParam? : string,
   update(): string,
   updateDir(): string
   updateChar(id: number): string,
