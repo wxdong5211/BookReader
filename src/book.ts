@@ -13,9 +13,13 @@ const readHtml = async(url: string) : Promise<string> => {
   return req;
 }
 
-const parseCharLink = (tag: string, idx: number): api.Charcter => {
+const parseCharLink = (tag: string, idx: number): api.Charcter|null => {
   const hrefStart = 'href="'
-  let href = tag.substr(tag.indexOf(hrefStart) + hrefStart.length);
+  const hrefIdx = tag.indexOf(hrefStart);
+  if(hrefIdx === -1){
+    return null;
+  }
+  let href = tag.substr(hrefIdx + hrefStart.length);
   href = href.substr(0, href.indexOf('"'))
   const title  = tag.replace(/<\/?[^>]*>/g,'')
   const charcter = {
@@ -31,8 +35,8 @@ const parseCharLink = (tag: string, idx: number): api.Charcter => {
 }
 
 const parseDir = (book:api.Book, req: string) : Array<api.Charcter> => {
-  const dirHtml = req.match(/<a.*href=".*".*>.*<\/a>/gi)
-  return dirHtml ? dirHtml.map(parseCharLink) : [];
+  const dirHtml = req.match(/<a([\s\S]*?)<\/a>/gi)
+  return dirHtml ? dirHtml.map(parseCharLink).filter(c=>c != null) as Array<api.Charcter>: [];
 }
 
 const subDirHtml = (book:api.Book, req: string): string => {
@@ -64,7 +68,11 @@ const readChar = (book:api.Book, char: api.Charcter) : Promise<string>  => {
     }else{
       const paramIdx = book.url.indexOf('?');
       const path = paramIdx === -1 ? book.url : book.url.substr(0, paramIdx);
-      url = path + (path.endsWith('/') ? '':'/') + url;
+      if(path.endsWith('/')){
+        url = path + url;
+      }else{
+        url = path.substr(0, path.lastIndexOf('/')+1) + url;
+      }
     }
   }
   return readHtml(url);
