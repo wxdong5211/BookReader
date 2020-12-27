@@ -1,6 +1,9 @@
+import * as request from './request'
 import file from './file'
 import * as api from './api'
 import Book from './book'
+
+const bookDir = 'data/books'
 
 const readBooks = (dirs: Array<string>): Array<api.Book> => {
   return dirs.map(readBook)
@@ -14,15 +17,12 @@ const readBook = (dir: string): api.Book => {
 
 const init = () => {
   return {
-    "sites": file.readJsonDir('data/sites'),
-    "books": readBooks(file.readSubDirs('data/books'))
+    "sites": file.readJsonFile('data/sites/site.json') as Array<any>,
+    "books": readBooks(file.readSubDirs(bookDir))
   }
 }
 
 const storge = init()
-
-console.log(storge)
-
 class ReaderImpl implements api.Reader {
   all(): api.Book[] {
     return storge.books;
@@ -40,11 +40,22 @@ class ReaderImpl implements api.Reader {
     book.update();
     return '123'
   }
-  add(book: api.Book): string {
-    throw new Error("Method not implemented.");
+  add(book: api.BookData): string {
+    const option = request.parseUrl(book.url);
+    const site = storge.sites.find(i => i.host === option.host && i.protocol === option.protocol)
+    book.block = (site||{}).block
+    file.writeJson(bookDir + '/' + book.id + '/book.json', book)
+    return '123'
   }
   del(book: number | api.Book): string {
-    throw new Error("Method not implemented.");
+    if(typeof book === 'number'){
+      book = this.get(book)
+      if(book == null){
+        return 'nobook';
+      }
+    }
+    file.del(bookDir + '/' + book.id)
+    return '123'
   }
   updateAll(): string {
     storge.books.map(this.update)

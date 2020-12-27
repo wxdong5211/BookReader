@@ -16,10 +16,8 @@ const api = __importStar(require("./api"));
 const codec_1 = require("./codec");
 const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 const readHtml = async (url) => {
-    // console.log('url',url)
     const option = request.parseUrl(url);
     const req = await request.request(option);
-    // console.log('req',req)
     return req;
 };
 const parseCharLink = (tag, idx) => {
@@ -100,7 +98,7 @@ const updateDirFunc = async (book) => {
         return chars;
     }
     catch (e) {
-        console.log('problem with request: ' + e.message);
+        console.error('problem with request: ' + e.message);
     }
     return [];
 };
@@ -111,40 +109,38 @@ const updateAll = async (book) => {
         writeBookChars(book, chars);
     }
     catch (e) {
-        console.log('problem with updateAll: ' + e.message);
+        console.error('problem with updateAll: ' + e.message);
     }
 };
 const updateChars = async (book, chars, force) => {
     try {
         for (let x in chars) {
+            if (!force && chars[x].state === api.CharcterState.Done) {
+                continue;
+            }
             await sleep(100); //TODO interval by config
-            await updateCharFunc(book, chars[x], force);
+            await updateCharFunc(book, chars[x]);
         }
     }
     catch (e) {
-        console.log('problem with updateChars: ' + e.message);
+        console.error('problem with updateChars: ' + e.message);
     }
 };
-const updateCharFunc = async (book, char, force) => {
-    if (!force && char.state === api.CharcterState.Done) {
-        return;
-    }
+const updateCharFunc = async (book, char) => {
     try {
-        console.log(new Date());
         console.log(char);
         const data = await readChar(book, char);
         const html = subCharHtml(book, data);
         let state = api.CharcterState.Done;
         if (!html) {
             state = api.CharcterState.Init;
-            console.log('data', data);
         }
         const charFull = Object.assign({ data: html }, char, { create: new Date(), state: state });
         writeBookChar(book, charFull);
         char.state = state;
     }
     catch (e) {
-        console.log('problem with request: ' + e.message);
+        console.error('problem with request: ' + e.message);
         char.state = api.CharcterState.Error;
     }
 };
@@ -154,7 +150,7 @@ const readCharsData = (book) => {
         return (data || {}).chars;
     }
     catch (e) {
-        console.log('problem with readCharsData: ' + e.message);
+        console.error('problem with readCharsData: ' + e.message);
     }
     return [];
 };
@@ -163,27 +159,25 @@ const readCharFullData = (book, id) => {
         return file_1.default.readJsonFile(book.location + '/chars/' + id + '.json');
     }
     catch (e) {
-        console.log('problem with readCharFullData: ' + e.message);
+        console.error('problem with readCharFullData: ' + e.message);
     }
     return null;
 };
 const writeBookChars = (book, chars) => {
-    writeJson(book.location + '/chars.json', { chars });
+    file_1.default.writeJson(book.location + '/chars.json', { chars });
 };
 const writeBookChar = (book, char) => {
-    writeJson(book.location + '/chars/' + char.id + '.json', char);
+    file_1.default.writeJson(book.location + '/chars/' + char.id + '.json', char);
 };
 const writeBook = (path, book) => {
-    writeJson(path, book);
-};
-const writeJson = (path, data) => {
-    file_1.default.writeFile(path, JSON.stringify(data, null, 2));
+    file_1.default.writeJson(path, book);
 };
 const writeTxt = (path, data) => {
     file_1.default.writeFile(path, data);
 };
 class BookImpl {
     constructor(book) {
+        this.id = book.id;
         this.name = book.name;
         this.url = book.url;
         this.location = book.location;
@@ -203,7 +197,7 @@ class BookImpl {
         return '123asd';
     }
     updateChar(id) {
-        updateCharFunc(this, this.getChar(id), true);
+        updateCharFunc(this, this.getChar(id));
         return '123asd';
     }
     async updateCharScope(from, until) {
@@ -214,7 +208,7 @@ class BookImpl {
             writeBookChars(this, charsAll);
         }
         catch (e) {
-            console.log('problem with updateCharUntil: ' + e.message);
+            console.error('problem with updateCharUntil: ' + e.message);
         }
         return '123asd';
     }
@@ -223,8 +217,7 @@ class BookImpl {
         if (charFull === null) {
             return '';
         }
-        // const data = (charFull.data || '').replace(/\n/g, '<br/>\n');
-        const data = charFull.data || '';
+        const data = (charFull.data || '').replace(/<br\/>/g, '\n');
         const title = charFull.title || '';
         // return `<div><h3>${title}</h3><p>${data}</p></div>`;
         return `${title}\n${data}`;

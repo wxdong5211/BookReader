@@ -19,7 +19,6 @@ export const parseUrl = (urlStr:string) : http.RequestOptions => {
     },
     timeout: 10
   }
-  console.log(option)
   return option;
 }
 
@@ -35,8 +34,6 @@ export const request = (options: http.RequestOptions &  { rejectUnauthorized?: b
         if(res.headers['content-encoding'] === 'gzip'){
           newBuffer = zlib.gunzipSync(newBuffer)
         }
-        console.log('headers', res.headers)
-        console.log('statusCode', res.statusCode)
         const tryStr = newBuffer.toString()
         const meta = tryStr.match(/<meta\shttp-equiv="Content-Type"\scontent="text\/html;\scharset=([^\"]*)"\s\/>/i)
         if(meta && meta.length > 1 && meta[1] !== 'utf-8'){

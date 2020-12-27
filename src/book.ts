@@ -6,10 +6,8 @@ import {encode} from './codec'
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
 const readHtml = async(url: string) : Promise<string> => {
-  // console.log('url',url)
   const option = request.parseUrl(url);
   const req = await request.request(option);
-  // console.log('req',req)
   return req;
 }
 
@@ -94,7 +92,7 @@ const updateDirFunc = async (book:api.Book): Promise<Array<api.Charcter>> => {
     writeBookChars(book, chars);
     return chars;
   } catch (e) {
-    console.log('problem with request: ' + e.message);
+    console.error('problem with request: ' + e.message);
   }
   return [];
 }
@@ -105,40 +103,38 @@ const updateAll = async (book:api.Book) => {
     await updateChars(book, chars, false);
     writeBookChars(book, chars);
   } catch (e) {
-    console.log('problem with updateAll: ' + e.message);
+    console.error('problem with updateAll: ' + e.message);
   }
 }
 
 const updateChars = async (book:api.Book, chars: Array<api.Charcter>, force: boolean) => {
   try {
     for (let x in chars) {
+      if(!force && chars[x].state === api.CharcterState.Done){
+        continue
+      }
       await sleep(100); //TODO interval by config
-      await updateCharFunc(book, chars[x], force);
+      await updateCharFunc(book, chars[x]);
     }
   } catch (e) {
-    console.log('problem with updateChars: ' + e.message);
+    console.error('problem with updateChars: ' + e.message);
   }
 }
 
-const updateCharFunc = async (book: api.Book, char: api.Charcter, force: boolean) => {
-  if(!force && char.state === api.CharcterState.Done){
-    return
-  }
+const updateCharFunc = async (book: api.Book, char: api.Charcter) => {
   try {
-    console.log(new Date())
     console.log(char)
     const data = await readChar(book, char)
     const html = subCharHtml(book, data);
     let state = api.CharcterState.Done
     if(!html){
       state = api.CharcterState.Init
-      console.log('data', data)
     }
     const charFull = Object.assign({data:html}, char, {create : new Date(), state: state});
     writeBookChar(book, charFull);
     char.state = state;
   } catch (e) {
-    console.log('problem with request: ' + e.message);
+    console.error('problem with request: ' + e.message);
     char.state = api.CharcterState.Error;
   }
 }
@@ -148,7 +144,7 @@ const readCharsData = (book: api.Book): Array<api.Charcter> => {
     const data = file.readJsonFile(book.location + '/chars.json');
     return (data||{}).chars;
   } catch (e) {
-    console.log('problem with readCharsData: ' + e.message);
+    console.error('problem with readCharsData: ' + e.message);
   }
   return [];
 }
@@ -157,25 +153,21 @@ const readCharFullData = (book: api.Book, id: number): api.CharcterFull | null =
   try {
     return file.readJsonFile(book.location + '/chars/'+id+'.json');
   } catch (e) {
-    console.log('problem with readCharFullData: ' + e.message);
+    console.error('problem with readCharFullData: ' + e.message);
   }
   return null;
 }
 
 const writeBookChars = (book: api.Book, chars:Array<api.Charcter>) => {
-  writeJson(book.location + '/chars.json', {chars})
+  file.writeJson(book.location + '/chars.json', {chars})
 }
 
 const writeBookChar = (book: api.Book, char:api.CharcterFull) => {
-  writeJson(book.location + '/chars/'+char.id+'.json', char)
+  file.writeJson(book.location + '/chars/'+char.id+'.json', char)
 }
 
 const writeBook = (path: string, book:api.Book) => {
-  writeJson(path, book)
-}
-
-const writeJson = (path: string, data:any) => {
-  file.writeFile(path, JSON.stringify(data, null, 2))
+  file.writeJson(path, book)
 }
 
 const writeTxt = (path: string, data:any) => {
@@ -183,15 +175,17 @@ const writeTxt = (path: string, data:any) => {
 }
 
 class BookImpl implements api.Book {
+  id: number;
   name: string;
   url: string;
-  location: string;
+  location?: string;
   method?: string | undefined;
   commonUrlParam?: string | undefined;
   encode?: string | undefined;
   interval?: number | undefined;
   block: api.Block;
   constructor(book: api.Book){
+    this.id = book.id;
     this.name = book.name;
     this.url = book.url;
     this.location = book.location;
@@ -211,7 +205,7 @@ class BookImpl implements api.Book {
     return '123asd';
   }
   updateChar(id: number): string {
-    updateCharFunc(this, this.getChar(id), true);
+    updateCharFunc(this, this.getChar(id));
     return '123asd';
   }
   async updateCharScope(from: number, until ?: number): Promise<string> {
@@ -221,7 +215,7 @@ class BookImpl implements api.Book {
       await updateChars(this, chars, false);
       writeBookChars(this, charsAll);
     } catch (e) {
-      console.log('problem with updateCharUntil: ' + e.message);
+      console.error('problem with updateCharUntil: ' + e.message);
     }
     return '123asd';
   }
@@ -230,8 +224,7 @@ class BookImpl implements api.Book {
     if(charFull === null){
       return '';
     }
-    // const data = (charFull.data || '').replace(/\n/g, '<br/>\n');
-    const data = charFull.data || '';
+    const data = (charFull.data || '').replace(/<br\/>/g, '\n');
     const title = charFull.title || '';
     // return `<div><h3>${title}</h3><p>${data}</p></div>`;
     return `${title}\n${data}`;

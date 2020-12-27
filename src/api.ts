@@ -8,7 +8,7 @@ export interface Reader {
   list(param: object): Array<Book>,
   get(id: number): Book,
   update(book: number | Book): string,
-  add(book: Book): string,
+  add(book: BookData): string,
   del(book: number | Book): string,
   updateAll(): string
 }
@@ -31,10 +31,23 @@ export interface Site extends BookConfig {
   protocol? : string
 }
 
-export interface Book extends BookConfig {
+export interface BookData {
+  id : number,
   url : string,
   name : string,
-  location : string,
+  location? : string,
+  method? : string,
+  commonUrlParam? : string,
+  encode? : string,
+  interval? : number,
+  block? : string
+}
+
+export interface Book extends BookConfig {
+  id : number,
+  url : string,
+  name : string,
+  location? : string,
   method? : string,
   commonUrlParam? : string,
   update(): string,

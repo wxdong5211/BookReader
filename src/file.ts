@@ -1,11 +1,13 @@
 import fs from 'fs'
+import ph from 'path'
+
 
 const isFile = (path: fs.PathLike): boolean => {
-  return fs.lstatSync(path).isFile()
+  return fs.existsSync(path) && fs.lstatSync(path).isFile()
 }
 
 const isDir = (path: fs.PathLike): boolean => {
-  return fs.lstatSync(path).isDirectory()
+  return fs.existsSync(path) && fs.lstatSync(path).isDirectory()
 }
 
 const mkDir = (path: fs.PathLike): void => {
@@ -31,7 +33,27 @@ const readSubDirs = (path: fs.PathLike): Array<string> => {
 }
 
 const writeFile = (path: fs.PathLike, data: any): void => {
+  const parent = ph.dirname(path.toString())
+  if(!isDir(parent)){
+    mkDir(parent)
+  }
   fs.writeFileSync(path, data)
 }
 
-export default {isFile, isDir, mkDir, readJsonFile, readJsonDir, readSubDirs, writeFile};
+const writeJson = (path: string, data:any) => {
+  writeFile(path, JSON.stringify(data, null, 2))
+}
+
+const del = (path: fs.PathLike): void => {
+  if(!fs.existsSync(path)){
+    return 
+  }
+  if(isDir(path)){
+    fs.readdirSync(path).forEach(i => del(path + '/' + i))
+    fs.rmdirSync(path)
+    return
+  }
+  fs.unlinkSync(path)
+}
+
+export default {isFile, isDir, mkDir, readJsonFile, readJsonDir, readSubDirs, writeFile, writeJson, del};
