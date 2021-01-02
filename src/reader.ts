@@ -6,7 +6,7 @@ import Book from './book'
 const bookDir = 'data/books'
 
 const readBooks = (dirs: Array<string>): Array<api.Book> => {
-  return dirs.map(readBook)
+  return dirs.map(readBook).sort( (a,b) => a.id - b.id)
 }
 
 const readBook = (dir: string): api.Book => {

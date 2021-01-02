@@ -15,7 +15,7 @@ const file_1 = __importDefault(require("./file"));
 const book_1 = __importDefault(require("./book"));
 const bookDir = 'data/books';
 const readBooks = (dirs) => {
-    return dirs.map(readBook);
+    return dirs.map(readBook).sort((a, b) => a.id - b.id);
 };
 const readBook = (dir) => {
     const book = file_1.default.readJsonFile(dir + '/book.json');
