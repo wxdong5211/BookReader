@@ -52,7 +52,7 @@ export interface Book extends BookConfig {
   commonUrlParam? : string,
   update(): string,
   updateDir(): Promise<string>
-  updateChar(id: number): string,
+  updateChar(id: number): Promise<string>,
   updateCharScope(from: number, until ?: number): Promise<string>,
   exportChar(id: number): string,
   exportCharScope(from: number, until ?: number): string,
@@ -72,6 +72,21 @@ export class UpdateDirResult {
   constructor(chars: Array<Charcter>, num: number){
     this.chars = chars;
     this.num = num;
+  }
+
+}
+
+export class UpdateCharResult {
+
+  total: number;
+  skip: number;
+  done: number;
+  error: number;
+  constructor(total: number, skip: number, done: number, error: number){
+    this.total = total;
+    this.skip = skip;
+    this.done = done;
+    this.error = error;
   }
 
 }

@@ -7,6 +7,9 @@ const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) 
 
 const readHtml = async(url: string) : Promise<string> => {
   const option = request.parseUrl(url);
+  option.headers = {
+    'user-agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
+  }
   const req = await request.request(option);
   return req;
 }
@@ -82,7 +85,10 @@ const subCharHtml = (book:api.Book, req: string): string => {
   req = req.substr(req.indexOf(start) + start.length);
   req = req.substr(0, req.indexOf(end));
   req = req.replace(/&nbsp;/g, ' ');
-  req = req.replace(/<br \/>/g, '\n');
+  req = req.replace(/<br\s*\/>/g, '\n');
+  req = req.replace(/<script\s+\S*>.*<\/script>/g, '');
+  req = req.replace(/<\/?.+?\/?>/g, '');
+  req = req.trim();
   return req;
 }
 
@@ -120,21 +126,31 @@ const updateAll = async (book:api.Book) => {
   }
 }
 
-const updateChars = async (book:api.Book, chars: Array<api.Charcter>, force: boolean) => {
+const updateChars = async (book:api.Book, chars: Array<api.Charcter>, force: boolean): Promise<api.UpdateCharResult> => {
+  let skip = 0;
+  let done = 0;
+  let error = 0;
   try {
     for (let x in chars) {
       if(!force && chars[x].state === api.CharcterState.Done){
+        skip++;
         continue
       }
       await sleep(100); //TODO interval by config
-      await updateCharFunc(book, chars[x]);
+      const state = await updateCharFunc(book, chars[x]);
+      if(state === api.CharcterState.Done){
+        done++;
+      }else{
+        error++;
+      }
     }
   } catch (e) {
     console.error('problem with updateChars: ' + e.message);
   }
+  return new api.UpdateCharResult(chars.length, skip, done, error)
 }
 
-const updateCharFunc = async (book: api.Book, char: api.Charcter) => {
+const updateCharFunc = async (book: api.Book, char: api.Charcter) : Promise<api.CharcterState> => {
   try {
     console.log(char)
     const data = await readChar(book, char)
@@ -146,9 +162,11 @@ const updateCharFunc = async (book: api.Book, char: api.Charcter) => {
     const charFull = Object.assign({data:html}, char, {create : new Date(), state: state});
     writeBookChar(book, charFull);
     char.state = state;
+    return state;
   } catch (e) {
     console.error('problem with request: ' + e.message);
     char.state = api.CharcterState.Error;
+    return char.state;
   }
 }
 
@@ -217,27 +235,28 @@ class BookImpl implements api.Book {
     const {num} = await updateDirFunc(this);
     return `update ${num} char`;
   }
-  updateChar(id: number): string {
-    updateCharFunc(this, this.getChar(id));
-    return '123asd';
+  async updateChar(id: number): Promise<string> {
+    const state = await updateCharFunc(this, this.getChar(id));
+    return `update result ${state}`;
   }
   async updateCharScope(from: number, until ?: number): Promise<string> {
     try {
       const charsAll = (this.getChars()||[]);
       const chars = charsAll.slice(from, until);
-      await updateChars(this, chars, false);
+      const result = await updateChars(this, chars, false);
       writeBookChars(this, charsAll);
+      return `update chars total ${result.total} done ${result.done} skip ${result.skip} error ${result.error}`;
     } catch (e) {
       console.error('problem with updateCharUntil: ' + e.message);
     }
-    return '123asd';
+    return 'update error';
   }
   exportChar(id: number): string {
     const charFull = readCharFullData(this, id);
     if(charFull === null){
       return '';
     }
-    const data = (charFull.data || '').replace(/<br\/>/g, '\n');
+    const data = (charFull.data || '');
     const title = charFull.title || '';
     // return `<div><h3>${title}</h3><p>${data}</p></div>`;
     return `${title}\n${data}`;
@@ -245,7 +264,7 @@ class BookImpl implements api.Book {
   exportCharScope(from: number, until ?: number): string {
     const chars = this.getCharsScope(from, until) || [];
     const head = `${this.name}\n`;
-    return head + chars.map(c => this.exportChar(c.id)).join('\n');
+    return head + chars.map(c => this.exportChar(c.id)).join('\n\n');
   }
   exportTxtScope(from: number, until ?: number): string {
     const txt = this.exportCharScope(from, until);

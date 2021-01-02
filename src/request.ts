@@ -35,7 +35,7 @@ export const request = (options: http.RequestOptions &  { rejectUnauthorized?: b
           newBuffer = zlib.gunzipSync(newBuffer)
         }
         const tryStr = newBuffer.toString()
-        const meta = tryStr.match(/<meta\shttp-equiv="Content-Type"\scontent="text\/html;\scharset=([^\"]*)"\s\/>/i)
+        const meta = tryStr.match(/<meta\shttp-equiv="content-type"\scontent="text\/html;\s*charset=([^\"]*)"\s*\/?>/i)
         if(meta && meta.length > 1 && meta[1] !== 'utf-8'){
           resolve(decode(newBuffer, meta[1]));
         }else{

@@ -7,6 +7,15 @@ class UpdateDirResult {
     }
 }
 exports.UpdateDirResult = UpdateDirResult;
+class UpdateCharResult {
+    constructor(total, skip, done, error) {
+        this.total = total;
+        this.skip = skip;
+        this.done = done;
+        this.error = error;
+    }
+}
+exports.UpdateCharResult = UpdateCharResult;
 var CharcterState;
 (function (CharcterState) {
     CharcterState[CharcterState["Init"] = 0] = "Init";

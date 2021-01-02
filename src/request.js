@@ -37,7 +37,7 @@ exports.request = (options, data) => new Promise((resolve, reject) => {
                     newBuffer = zlib_1.default.gunzipSync(newBuffer);
                 }
                 const tryStr = newBuffer.toString();
-                const meta = tryStr.match(/<meta\shttp-equiv="Content-Type"\scontent="text\/html;\scharset=([^\"]*)"\s\/>/i);
+                const meta = tryStr.match(/<meta\shttp-equiv="content-type"\scontent="text\/html;\s*charset=([^\"]*)"\s*\/?>/i);
                 if (meta && meta.length > 1 && meta[1] !== 'utf-8') {
                     resolve(codec_1.decode(newBuffer, meta[1]));
                 }
