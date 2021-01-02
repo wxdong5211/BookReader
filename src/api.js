@@ -1,5 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+class UpdateDirResult {
+    constructor(chars, num) {
+        this.chars = chars;
+        this.num = num;
+    }
+}
+exports.UpdateDirResult = UpdateDirResult;
 var CharcterState;
 (function (CharcterState) {
     CharcterState[CharcterState["Init"] = 0] = "Init";

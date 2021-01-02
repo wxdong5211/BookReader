@@ -86,20 +86,33 @@ const subCharHtml = (book:api.Book, req: string): string => {
   return req;
 }
 
-const updateDirFunc = async (book:api.Book): Promise<Array<api.Charcter>> => {
+const updateDirFunc = async (book:api.Book): Promise<api.UpdateDirResult> => {
   try {
-    const chars = await readDir(book);
+    const chars = readCharsData(book)||[];
+    const urls = chars.map(i=>i.url)
+    const max = chars.length == 0 ? 0 : chars[chars.length-1].order
+    const remoteChars = await readDir(book);
+    let num = 0;
+    remoteChars.forEach(v => {
+      if(urls.indexOf(v.url) != -1){
+        return
+      }
+      num += 1;
+      v.order = max + num;
+      v.disOrder = v.order;
+      chars.push(v)
+    })
     writeBookChars(book, chars);
-    return chars;
+    return new api.UpdateDirResult(chars, num);
   } catch (e) {
     console.error('problem with request: ' + e.message);
   }
-  return [];
+  return new api.UpdateDirResult([], 0);
 }
 
 const updateAll = async (book:api.Book) => {
   try {
-    const chars = await updateDirFunc(book);
+    const {chars} = await updateDirFunc(book);
     await updateChars(book, chars, false);
     writeBookChars(book, chars);
   } catch (e) {
@@ -200,9 +213,9 @@ class BookImpl implements api.Book {
     writeBook('data/test.json', this);
     return '123asd';
   }
-  updateDir(): string {
-    updateDirFunc(this);
-    return '123asd';
+  async updateDir(): Promise<string> {
+    const {num} = await updateDirFunc(this);
+    return `update ${num} char`;
   }
   updateChar(id: number): string {
     updateCharFunc(this, this.getChar(id));

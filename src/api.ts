@@ -51,7 +51,7 @@ export interface Book extends BookConfig {
   method? : string,
   commonUrlParam? : string,
   update(): string,
-  updateDir(): string
+  updateDir(): Promise<string>
   updateChar(id: number): string,
   updateCharScope(from: number, until ?: number): Promise<string>,
   exportChar(id: number): string,
@@ -63,6 +63,17 @@ export interface Book extends BookConfig {
   updateCharState(state: CharcterState, id: number): void,
   updateCharStateScope(state: CharcterState, from: number, until ?: number): void,
   getCharsScope(from: number, until ?: number): Array<Charcter>
+}
+
+export class UpdateDirResult {
+
+  chars : Array<Charcter>;
+  num: number;
+  constructor(chars: Array<Charcter>, num: number){
+    this.chars = chars;
+    this.num = num;
+  }
+
 }
 
 export enum CharcterState {
