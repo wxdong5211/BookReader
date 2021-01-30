@@ -85,6 +85,7 @@ const subCharHtml = (book:api.Book, req: string): string => {
   req = req.substr(req.indexOf(start) + start.length);
   req = req.substr(0, req.indexOf(end));
   req = req.replace(/&nbsp;/g, ' ');
+  req = req.replace(/　/g, ' ');
   req = req.replace(/<br\s*\/>/g, '\n');
   req = req.replace(/<script\s+\S*>.*<\/script>/g, '');
   req = req.replace(/<\/?.+?\/?>/g, '');
@@ -263,7 +264,7 @@ class BookImpl implements api.Book {
   }
   exportCharScope(from: number, until ?: number): string {
     const chars = this.getCharsScope(from, until) || [];
-    const head = `${this.name}\n`;
+    const head = `${this.name}\n\n`;
     return head + chars.map(c => this.exportChar(c.id)).join('\n\n');
   }
   exportTxtScope(from: number, until ?: number): string {
