@@ -5,15 +5,6 @@ import {encode} from './codec'
 
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
-const readHtml = async(url: string) : Promise<string> => {
-  const option = request.parseUrl(url);
-  option.headers = {
-    'user-agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
-  }
-  const req = await request.request(option);
-  return req;
-}
-
 const parseCharLink = (tag: string, idx: number): api.Charcter|null => {
   const hrefStart = 'href="'
   const hrefIdx = tag.indexOf(hrefStart);
@@ -54,7 +45,7 @@ const readDir = async (book:api.Book) : Promise<Array<api.Charcter>>  => {
     const paramIdx = url.indexOf('?');
     url += (paramIdx === -1 ? '?' : '&') + book.commonUrlParam;
   }
-  const req = await readHtml(url);
+  const req = await request.readHtml(url);
   return parseDir(book, subDirHtml(book, req));
 }
 
@@ -76,7 +67,7 @@ const readChar = (book:api.Book, char: api.Charcter) : Promise<string>  => {
       }
     }
   }
-  return readHtml(url);
+  return request.readHtml(url);
 }
 
 const subCharHtml = (book:api.Book, req: string): string => {

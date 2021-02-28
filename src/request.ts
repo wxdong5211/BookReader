@@ -61,3 +61,12 @@ export const request = (options: http.RequestOptions &  { rejectUnauthorized?: b
   req.end();
 })
 
+export const readHtml = async(url: string) : Promise<string> => {
+  const option = parseUrl(url);
+  option.headers = {
+    'user-agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
+  }
+  const req = await request(option);
+  return req;
+}
+

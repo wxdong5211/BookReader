@@ -22,14 +22,66 @@ const readBook = (dir) => {
     book.location = dir;
     return new book_1.default(book);
 };
+const maxBookId = () => {
+    const books = storge.books;
+    if (books) {
+        return books[books.length - 1].id;
+    }
+    return 0;
+};
 const init = () => {
     return {
         "sites": file_1.default.readJsonFile('data/sites/site.json'),
         "books": readBooks(file_1.default.readSubDirs(bookDir))
     };
 };
+const parseCharLink = (tag, idx) => {
+    const hrefStart = 'href="';
+    const hrefIdx = tag.indexOf(hrefStart);
+    if (hrefIdx === -1) {
+        return null;
+    }
+    let href = tag.substr(hrefIdx + hrefStart.length);
+    href = href.substr(0, href.indexOf('"'));
+    const title = tag.replace(/<\/?[^>]*>/g, '');
+    const charcter = {
+        id: idx,
+        url: href,
+        name: title
+    };
+    return charcter;
+};
+const searchSite = async (name, site) => {
+    const search = site.search;
+    const domain = site.protocol + '//' + site.host;
+    const path = domain + search.path;
+    const html = await request.readHtml(path + encodeURI(name));
+    let str = html;
+    str = str.substring(str.indexOf(search.listStart));
+    str = str.substring(0, str.indexOf(search.listEnd));
+    const links = str.match(/<a([\s\S]*?)<\/a>/gi) || [];
+    const datas = links.map(parseCharLink).filter(c => c != null && c.name.indexOf(name) != -1);
+    const arr = datas.map(c => {
+        const urls = c.url.match(/\d+/gi) || [];
+        if (!urls) {
+            return null;
+        }
+        const url = '/book/' + urls[0] + '/';
+        c.url = domain + url;
+        return c;
+    }).filter(c => c != null);
+    return arr;
+};
 const storge = init();
 class ReaderImpl {
+    async search(name) {
+        const sites = storge.sites.filter(i => i.search) || [];
+        const list = [];
+        for (let i in sites) {
+            list.push(...await searchSite(name, sites[i]));
+        }
+        return list;
+    }
     all() {
         return storge.books;
     }
@@ -47,10 +99,12 @@ class ReaderImpl {
         return '123';
     }
     add(book) {
-        const option = request.parseUrl(book.url);
-        const site = storge.sites.find(i => i.host === option.host && i.protocol === option.protocol);
-        book.block = (site || {}).block;
-        file_1.default.writeJson(bookDir + '/' + book.id + '/book.json', book);
+        book.id = maxBookId() + 1;
+        console.log(book);
+        // const option = request.parseUrl(book.url);
+        // const site = storge.sites.find(i => i.host === option.host && i.protocol === option.protocol)
+        // book.block = (site||{}).block
+        // file.writeJson(bookDir + '/' + book.id + '/book.json', book)
         return '123';
     }
     del(book) {

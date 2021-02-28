@@ -10,7 +10,8 @@ export interface Reader {
   update(book: number | Book): string,
   add(book: BookData): string,
   del(book: number | Book): string,
-  updateAll(): string
+  updateAll(): string,
+  search(param: string): Promise<Array<BookData>>
 }
 
 export interface Block {

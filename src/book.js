@@ -15,14 +15,6 @@ const file_1 = __importDefault(require("./file"));
 const api = __importStar(require("./api"));
 const codec_1 = require("./codec");
 const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
-const readHtml = async (url) => {
-    const option = request.parseUrl(url);
-    option.headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
-    };
-    const req = await request.request(option);
-    return req;
-};
 const parseCharLink = (tag, idx) => {
     const hrefStart = 'href="';
     const hrefIdx = tag.indexOf(hrefStart);
@@ -60,7 +52,7 @@ const readDir = async (book) => {
         const paramIdx = url.indexOf('?');
         url += (paramIdx === -1 ? '?' : '&') + book.commonUrlParam;
     }
-    const req = await readHtml(url);
+    const req = await request.readHtml(url);
     return parseDir(book, subDirHtml(book, req));
 };
 const readChar = (book, char) => {
@@ -83,7 +75,7 @@ const readChar = (book, char) => {
             }
         }
     }
-    return readHtml(url);
+    return request.readHtml(url);
 };
 const subCharHtml = (book, req) => {
     const start = book.block.charStart;
