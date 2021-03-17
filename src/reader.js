@@ -62,6 +62,7 @@ const searchSite = async (name, site) => {
     const links = str.match(/<a([\s\S]*?)<\/a>/gi) || [];
     const datas = links.map(parseCharLink).filter(c => c != null && c.name.indexOf(name) != -1);
     const arr = datas.map(c => {
+        // TODO temp
         const urls = c.url.match(/\d+/gi) || [];
         if (!urls) {
             return null;
@@ -100,11 +101,10 @@ class ReaderImpl {
     }
     add(book) {
         book.id = maxBookId() + 1;
-        console.log(book);
-        // const option = request.parseUrl(book.url);
-        // const site = storge.sites.find(i => i.host === option.host && i.protocol === option.protocol)
-        // book.block = (site||{}).block
-        // file.writeJson(bookDir + '/' + book.id + '/book.json', book)
+        const option = request.parseUrl(book.url);
+        const site = storge.sites.find(i => i.host === option.host && i.protocol === option.protocol);
+        book.block = (site || {}).block;
+        file_1.default.writeJson(bookDir + '/' + book.id + '/book.json', book);
         return '123';
     }
     del(book) {
