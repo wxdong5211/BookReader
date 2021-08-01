@@ -28,7 +28,8 @@ const parseCharLink = (tag: string, idx: number): api.Charcter|null => {
 
 const parseDir = (book:api.Book, req: string) : Array<api.Charcter> => {
   const dirHtml = req.match(/<a([\s\S]*?)<\/a>/gi)
-  return dirHtml ? dirHtml.map(parseCharLink).filter(c=>c != null) as Array<api.Charcter>: [];
+  const noReapet = dirHtml ? [...new Set(dirHtml)] : []
+  return noReapet.map(parseCharLink).filter(c=>c != null) as Array<api.Charcter>;
 }
 
 const subDirHtml = (book:api.Book, req: string): string => {

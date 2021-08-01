@@ -37,7 +37,8 @@ const parseCharLink = (tag, idx) => {
 };
 const parseDir = (book, req) => {
     const dirHtml = req.match(/<a([\s\S]*?)<\/a>/gi);
-    return dirHtml ? dirHtml.map(parseCharLink).filter(c => c != null) : [];
+    const noReapet = dirHtml ? [...new Set(dirHtml)] : [];
+    return noReapet.map(parseCharLink).filter(c => c != null);
 };
 const subDirHtml = (book, req) => {
     const start = book.block.dirStart;
