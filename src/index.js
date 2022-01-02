@@ -5,10 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const factory_1 = __importDefault(require("./factory"));
 const test = async () => {
-    // await search('刺客之王')
-    // await updateDirs(33, 49)
-    // await updateChars(49, 0)
-    await exportChars(49, 0);
+    // await search('我必将加冕为王')
+    // await updateDirs()
+    // await updateChars()
+    await exportChars();
 };
 const search = async (name) => {
     const r = factory_1.default.getReader();
@@ -16,7 +16,11 @@ const search = async (name) => {
     console.log(books);
     if (books && books.length == 1) {
         r.add(books[0]);
-        
+        // r.add({
+        //   id: 37,
+        //   name:'我老婆是邪神',
+        //   url:'https://www.boquku.com/book/125937/'
+        // })
     }
 };
 const test1 = async () => {
@@ -56,28 +60,16 @@ const test1 = async () => {
     // const ret = book.exportTxtScope(691)
     // console.log('exportTxtScope ret = ', ret)
 };
-const updateChars = async (idx, start) => {
+const updateChars = async () => {
     const r = factory_1.default.getReader();
-    const book = r.get(idx);
-    const ret = await book.updateCharScope(start);
-    console.log(idx + ' ' + book.name + ' ' + book.id + ' start ' + start + ' updateCharScope ret = ', ret);
-    // const ret = book.exportTxtScope(691)
-    // console.log('exportTxtScope ret = ', ret)
+    r.updateChars();
 };
-const exportChars = async (idx, start) => {
+const exportChars = async () => {
     const r = factory_1.default.getReader();
-    const book = r.get(idx);
-    const ret = await book.exportTxtScope(start);
-    console.log(idx + ' ' + book.name + ' ' + book.id + ' start ' + start + ' exportTxtScope ret = ', ret);
+    r.exportChars();
 };
-const updateDirs = async (start, end) => {
+const updateDirs = async () => {
     const r = factory_1.default.getReader();
-    for (let i = start; i <= end; i++) {
-        const book = r.get(i);
-        if (book) {
-            const ret = await book.updateDir();
-            console.log(i + ' ' + book.name + ' ' + book.id + ' updateDir ret = ', ret);
-        }
-    }
+    r.updateDirs();
 };
 test();

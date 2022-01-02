@@ -11,6 +11,9 @@ export interface Reader {
   add(book: BookData): string,
   del(book: number | Book): string,
   updateAll(): string,
+  updateDirs(): Promise<string>,
+  updateChars(): Promise<string>,
+  exportChars(): string,
   search(param: string): Promise<Array<BookData>>
 }
 
@@ -52,15 +55,17 @@ export interface Book extends BookConfig {
   method? : string,
   commonUrlParam? : string,
   update(): string,
-  updateDir(): Promise<string>
+  updateDir(): Promise<UpdateDirResult>
   updateChar(id: number): Promise<string>,
-  updateCharScope(from: number, until ?: number): Promise<string>,
+  updateCharScope(from: number, until ?: number): Promise<UpdateCharResult|null>,
   exportChar(id: number): string,
   exportCharScope(from: number, until ?: number): string,
   exportTxtScope(from: number, until ?: number): string,
   getCharsLength(): number,
   getChars(): Array<Charcter>,
   getChar(id: number): Charcter,
+  getLastUpdateChar(): Charcter | undefined,
+  getLastChar(): Charcter | undefined,
   updateCharState(state: CharcterState, id: number): void,
   updateCharStateScope(state: CharcterState, from: number, until ?: number): void,
   getCharsScope(from: number, until ?: number): Array<Charcter>

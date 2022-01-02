@@ -70,6 +70,16 @@ const searchSite = async (name: string, site: any): Promise<api.BookData[]> => {
   return arr
 }
 
+const getBooksUpdateMap = (books: Array<any>) => {
+  const booksMap: any = {}
+  let book;
+  for(let i in books){
+    book = books[i]
+    booksMap[book.id] = {...book}
+  }
+  return booksMap;
+}
+
 const storge = init()
 class ReaderImpl implements api.Reader {
   async search(name: string): Promise<api.BookData[]> {
@@ -116,6 +126,92 @@ class ReaderImpl implements api.Reader {
   }
   updateAll(): string {
     storge.books.map(this.update)
+    return '123'
+  }
+  async updateDirs(): Promise<string> {
+    const booksData = file.readJsonFile('data/books.json') || {}
+    const books = booksData.books || []
+    const newBooks = []
+    const booksMap = getBooksUpdateMap(books)
+    const allBooks = this.all()
+    for(let i in allBooks){
+      const book =allBooks[i]
+      if(book){
+        let bookUpdateData = booksMap[book.id]
+        if(!bookUpdateData){
+          const lastReadChar = book.getLastUpdateChar() || {title:'', order:0}
+          bookUpdateData = {
+            id:book.id,
+            name:book.name,
+            readNum: lastReadChar.order,
+            readChar: lastReadChar.title
+          }
+        }
+        const {chars,num} = await book.updateDir()
+        const lastChar = !chars ? {title:'', order: 0} : chars[chars.length - 1]
+        bookUpdateData.num = num;
+        bookUpdateData.lastNum = lastChar.order;
+        bookUpdateData.lastChar = lastChar.title;
+        console.log(i + ' updateDir ret = ', bookUpdateData)
+        newBooks.push(bookUpdateData)
+      }
+    }
+    booksData.books = newBooks
+    file.writeJson('data/books.json', booksData)
+    return '123'
+  }
+  async updateChars(): Promise<string> {
+    const booksData = file.readJsonFile('data/books.json') || {}
+    const books = booksData.books || []
+    const newResults = []
+    const booksMap = getBooksUpdateMap(books)
+    const allBooks = this.all()
+    for(let i in allBooks){
+      const book =allBooks[i]
+      if(book){
+        let bookUpdateData = booksMap[book.id]
+        if(bookUpdateData){
+          const result = await book.updateCharScope(bookUpdateData.readNum)
+          console.log(i + ` update chars `, {...bookUpdateData, ...result})
+          newResults.push({...bookUpdateData, ...result, idx:i})
+        }
+      }
+    }
+    newResults.forEach(i => console.log(` update chars `, i))
+    return '123'
+  }
+  exportChars(): string {
+    const booksData = file.readJsonFile('data/books.json') || {}
+    const books = booksData.books || []
+    const newBooks = []
+    const booksMap = getBooksUpdateMap(books)
+    const allBooks = this.all()
+    for(let i in allBooks){
+      const book =allBooks[i]
+      if(book){
+        let bookUpdateData = booksMap[book.id]
+        if(bookUpdateData){
+          if(bookUpdateData.readNum !== bookUpdateData.lastNum || bookUpdateData.lastNum === 0){
+            const ret = book.exportTxtScope(bookUpdateData.readNum)
+            bookUpdateData.num = 0;
+            bookUpdateData.readNum = bookUpdateData.lastNum;
+            bookUpdateData.readChar = bookUpdateData.lastChar;
+            console.log(i + ' exportChars ret = ', bookUpdateData)
+          }
+        }else{
+          const lastReadChar = book.getLastUpdateChar() || {title:'', order:0}
+          bookUpdateData = {
+            id:book.id,
+            name:book.name,
+            readNum: lastReadChar.order,
+            readChar: lastReadChar.title
+          }
+        }
+        newBooks.push(bookUpdateData)
+      }
+    }
+    booksData.books = newBooks
+    file.writeJson('data/books.json', booksData)
     return '123'
   }
 }

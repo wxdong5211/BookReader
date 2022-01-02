@@ -1,10 +1,10 @@
 import factory from './factory'
 
 const test = async () => {
-  // await search('刺客之王')
-  await updateDirs(33, 49)
-  // await updateChars(49, 0)
-  // await exportChars(49, 0)
+  // await search('我必将加冕为王')
+  // await updateDirs()
+  // await updateChars()
+  await exportChars()
 }
 
 const search = async (name: string) => {
@@ -13,7 +13,11 @@ const search = async (name: string) => {
   console.log(books)
   if(books && books.length == 1){
     r.add(books[0])
-  
+    // r.add({
+    //   id: 37,
+    //   name:'我老婆是邪神',
+    //   url:'https://www.boquku.com/book/125937/'
+    // })
   }
 
 }
@@ -58,31 +62,19 @@ const test1 = async () => {
   // console.log('exportTxtScope ret = ', ret)
 };
 
-const updateChars = async (idx: number, start: number) => {
+const updateChars = async () => {
   const r = factory.getReader()
-  const book = r.get(idx)
-  const ret = await book.updateCharScope(start)
-  console.log(idx + ' ' +book.name + ' ' +book.id + ' start ' + start + ' updateCharScope ret = ', ret)
-  // const ret = book.exportTxtScope(691)
-  // console.log('exportTxtScope ret = ', ret)
+  r.updateChars()
 };
 
-const exportChars = async (idx: number, start: number) => {
+const exportChars = async () => {
   const r = factory.getReader()
-  const book = r.get(idx)
-  const ret = await book.exportTxtScope(start)
-  console.log(idx + ' ' +book.name + ' ' +book.id + ' start ' + start + ' exportTxtScope ret = ', ret)
+  r.exportChars()
 };
 
-const updateDirs = async (start: number, end: number) => {
+const updateDirs = async () => {
   const r = factory.getReader()
-  for(let i = start; i <= end; i++){
-    const book = r.get(i)
-    if(book){
-      const ret = await book.updateDir()
-      console.log(i + ' ' +book.name + ' ' +book.id + ' updateDir ret = ', ret)
-    }
-  }
+  r.updateDirs()
 };
 
 test();

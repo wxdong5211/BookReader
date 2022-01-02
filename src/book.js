@@ -219,8 +219,8 @@ class BookImpl {
         return '123asd';
     }
     async updateDir() {
-        const { num } = await updateDirFunc(this);
-        return `update ${num} char`;
+        const result = await updateDirFunc(this);
+        return result;
     }
     async updateChar(id) {
         const state = await updateCharFunc(this, this.getChar(id));
@@ -232,12 +232,12 @@ class BookImpl {
             const chars = charsAll.slice(from, until);
             const result = await updateChars(this, chars, false);
             writeBookChars(this, charsAll);
-            return `update chars total ${result.total} done ${result.done} skip ${result.skip} error ${result.error}`;
+            return result;
         }
         catch (e) {
             console.error('problem with updateCharUntil: ' + e.message);
         }
-        return 'update error';
+        return null;
     }
     exportChar(id) {
         const charFull = readCharFullData(this, id);
@@ -274,6 +274,14 @@ class BookImpl {
     }
     getChar(id) {
         return (this.getCharsScope(id, id + 1) || [])[0];
+    }
+    getLastUpdateChar() {
+        const chars = this.getChars();
+        return [...chars].reverse().find(i => i.state === api.CharcterState.Done);
+    }
+    getLastChar() {
+        const chars = this.getChars();
+        return !chars ? undefined : chars[chars.length - 1];
     }
     updateCharState(state, id) {
         this.updateCharStateScope(state, id, id + 1);
