@@ -281,7 +281,7 @@ class BookImpl implements api.Book {
   }
   getLastUpdateChar(): api.Charcter | undefined{
     const chars = this.getChars()
-    return [...chars].reverse().find(i => i.state === api.CharcterState.Done)
+    return !chars ? undefined : [...chars].reverse().find(i => i.state === api.CharcterState.Done)
   }
   getLastChar(): api.Charcter | undefined{
     const chars = this.getChars()
