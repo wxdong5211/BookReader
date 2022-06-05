@@ -23,7 +23,7 @@ const parseCharLink = (tag, idx) => {
     }
     let href = tag.substr(hrefIdx + hrefStart.length);
     href = href.substr(0, href.indexOf('"'));
-    const title = tag.replace(/<\/?[^>]*>/g, '');
+    const title = tag.replace(/<\/?[^>]*>/g, '').trim();
     const charcter = {
         id: idx,
         url: href,

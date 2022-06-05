@@ -43,7 +43,7 @@ const parseCharLink = (tag, idx) => {
     }
     let href = tag.substr(hrefIdx + hrefStart.length);
     href = href.substr(0, href.indexOf('"'));
-    const title = tag.replace(/<\/?[^>]*>/g, '');
+    const title = tag.replace(/<\/?[^>]*>/g, '').trim();
     const charcter = {
         id: idx,
         url: href,
@@ -55,6 +55,7 @@ const searchSite = async (name, site) => {
     const search = site.search;
     const domain = site.protocol + '//' + site.host;
     const path = domain + search.path;
+    const type = search.type;
     const html = await request.readHtml(path + encodeURI(name));
     let str = html;
     str = str.substring(str.indexOf(search.listStart));
@@ -63,12 +64,17 @@ const searchSite = async (name, site) => {
     const datas = links.map(parseCharLink).filter(c => c != null && c.name.indexOf(name) != -1);
     const arr = datas.map(c => {
         // TODO temp
-        const urls = c.url.match(/\d+/gi) || [];
-        if (!urls) {
-            return null;
+        if (type === 'cutNumber') {
+            const urls = c.url.match(/\d+/gi) || [];
+            if (!urls) {
+                return null;
+            }
+            const url = '/book/' + urls[0] + '/';
+            c.url = domain + url;
         }
-        const url = '/book/' + urls[0] + '/';
-        c.url = domain + url;
+        else {
+            c.url = domain + c.url;
+        }
         return c;
     }).filter(c => c != null);
     return arr;

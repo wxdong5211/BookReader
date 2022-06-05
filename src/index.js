@@ -4,25 +4,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const factory_1 = __importDefault(require("./factory"));
+const readline_1 = __importDefault(require("readline"));
 const test = async () => {
-    // await search('我必将加冕为王')
+    // await search('霍格沃茨的诡秘行者')
     // await updateDirs()
-    // await updateChars()
-    await exportChars();
+    await updateChars();
+    // await exportChars()
 };
 const search = async (name) => {
     const r = factory_1.default.getReader();
     const books = await r.search(name);
     console.log(books);
-    if (books && books.length == 1) {
-        r.add(books[0]);
-        // r.add({
-        //   id: 37,
-        //   name:'我老婆是邪神',
-        //   url:'https://www.boquku.com/book/125937/'
-        // })
+    if (books && books.length > 0) {
+        if (books.length === 1) {
+            console.log('auto anwser is ', 0);
+            r.add(books[0]);
+        }
+        else {
+            const anwser = await waitHumanAction(books.length);
+            console.log('human anwser is ', anwser);
+            const bookSeq = parseInt(anwser.trim());
+            if (!isNaN(bookSeq) && bookSeq > -1 && bookSeq < books.length) {
+                r.add(books[bookSeq]);
+            }
+            else {
+                console.error('bookSeq is not ok', anwser);
+            }
+        }
     }
+    // r.add({
+    //   id: 37,
+    //   name:'我老婆是邪神',
+    //   url:'https://www.boquku.com/book/125937/'
+    // })
 };
+const waitHumanAction = (len) => new Promise((resolve, reject) => {
+    const rl = readline_1.default.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    rl.question('which[' + len + ']? ', anwser => {
+        resolve(anwser);
+        rl.close();
+    });
+});
 const test1 = async () => {
     const r = factory_1.default.getReader();
     // r.updateAll()
