@@ -68,7 +68,8 @@ export interface Book extends BookConfig {
   getLastChar(): Charcter | undefined,
   updateCharState(state: CharcterState, id: number): void,
   updateCharStateScope(state: CharcterState, from: number, until ?: number): void,
-  getCharsScope(from: number, until ?: number): Array<Charcter>
+  getCharsScope(from: number, until ?: number): Array<Charcter>,
+  reOrder(): void
 }
 
 export class UpdateDirResult {

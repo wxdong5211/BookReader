@@ -30,9 +30,15 @@ const maxBookId = () => {
     return 0;
 };
 const init = () => {
+    const books = readBooks(file_1.default.readSubDirs(bookDir));
+    const booksMap = {};
+    books.forEach((v, i) => {
+        booksMap[v.id] = i;
+    });
     return {
         "sites": file_1.default.readJsonFile('data/sites/site.json'),
-        "books": readBooks(file_1.default.readSubDirs(bookDir))
+        "books": books,
+        "booksMap": booksMap,
     };
 };
 const parseCharLink = (tag, idx) => {
@@ -94,7 +100,12 @@ class ReaderImpl {
         const sites = storge.sites.filter(i => i.search) || [];
         const list = [];
         for (let i in sites) {
-            list.push(...await searchSite(name, sites[i]));
+            try {
+                list.push(...await searchSite(name, sites[i]));
+            }
+            catch (e) {
+                console.error('search ' + name + ' fail', sites[i], e);
+            }
         }
         return list;
     }
@@ -105,7 +116,7 @@ class ReaderImpl {
         return storge.books;
     }
     get(id) {
-        return storge.books[id];
+        return storge.books[storge.booksMap[id]];
     }
     update(book) {
         if (typeof book === 'number') {
@@ -156,7 +167,7 @@ class ReaderImpl {
                     };
                 }
                 const { chars, num } = await book.updateDir();
-                const lastChar = !chars ? { title: '', order: 0 } : chars[chars.length - 1];
+                const lastChar = chars == null || chars.length === 0 ? { title: '', order: 0 } : chars[chars.length - 1];
                 bookUpdateData.num = num;
                 bookUpdateData.lastNum = lastChar.order;
                 bookUpdateData.lastChar = lastChar.title;

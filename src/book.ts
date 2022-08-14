@@ -2,18 +2,20 @@ import * as request from './request'
 import file from './file'
 import * as api from './api'
 import {encode} from './codec'
+import {sortChars} from './sort'
 
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
 const parseCharLink = (tag: string, idx: number): api.Charcter|null => {
   const hrefStart = 'href="'
-  const hrefIdx = tag.indexOf(hrefStart);
+  const hrefTag = tag.replace(/href[\s]*=[\s]*"/gi,'href="')
+  const hrefIdx = hrefTag.indexOf(hrefStart);
   if(hrefIdx === -1){
     return null;
   }
-  let href = tag.substr(hrefIdx + hrefStart.length);
+  let href = hrefTag.substr(hrefIdx + hrefStart.length);
   href = href.substr(0, href.indexOf('"'))
-  const title  = tag.replace(/<\/?[^>]*>/g,'').trim()
+  const title  = hrefTag.replace(/<\/?[^>]*>/g,'').trim()
   const charcter = {
     id : idx,
     url : href,
@@ -314,6 +316,14 @@ class BookImpl implements api.Book {
   getCharsScope(from: number, until ?: number): Array<api.Charcter> {
     const chars = (this.getChars()||[])
     return chars.slice(from, until);
+  }
+  reOrder(){
+    const chars = (this.getChars()||[])
+    chars.forEach((c,i)=>{
+      c.order = i
+      c.disOrder = i
+    })
+    writeBookChars(this, sortChars(chars))
   }
 }
 

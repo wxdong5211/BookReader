@@ -24,9 +24,15 @@ const maxBookId = (): number => {
 }
 
 const init = () => {
+  const books = readBooks(file.readSubDirs(bookDir))
+  const booksMap: any = {}
+  books.forEach((v,i)=>{
+    booksMap[v.id] = i
+  })
   return {
     "sites": file.readJsonFile('data/sites/site.json') as Array<any>,
-    "books": readBooks(file.readSubDirs(bookDir))
+    "books": books,
+    "booksMap": booksMap,
   };
 }
 
@@ -91,7 +97,11 @@ class ReaderImpl implements api.Reader {
     const sites = storge.sites.filter(i => i.search) || []
     const list = []
     for(let i in sites){
-      list.push(... await searchSite(name, sites[i]))
+      try{
+        list.push(... await searchSite(name, sites[i]))
+      }catch(e){
+        console.error('search ' + name + ' fail',  sites[i], e)
+      }
     }
     return list
   }
@@ -102,7 +112,7 @@ class ReaderImpl implements api.Reader {
     return storge.books;
   }
   get(id: number): api.Book {
-    return storge.books[id];
+    return storge.books[storge.booksMap[id]];
   }
   update(book: number | api.Book): string {
     if(typeof book === 'number'){
@@ -153,7 +163,7 @@ class ReaderImpl implements api.Reader {
           }
         }
         const {chars,num} = await book.updateDir()
-        const lastChar = !chars ? {title:'', order: 0} : chars[chars.length - 1]
+        const lastChar = chars == null || chars.length === 0 ? {title:'', order: 0} : chars[chars.length - 1]
         bookUpdateData.num = num;
         bookUpdateData.lastNum = lastChar.order;
         bookUpdateData.lastChar = lastChar.title;
