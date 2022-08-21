@@ -2,7 +2,7 @@ import * as request from './request'
 import file from './file'
 import * as api from './api'
 import {encode} from './codec'
-import {sortChars} from './sort'
+import {sortChars, sortNumChars} from './sort'
 
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
@@ -87,12 +87,30 @@ const subCharHtml = (book:api.Book, req: string): string => {
   return req;
 }
 
+const getMaxCharId = (chars:Array<api.Charcter>):number => {
+  if(chars == null || chars.length === 0){
+    return 0;
+  }
+  let max = 0;
+  chars.forEach(x => {
+    if(max < x.order){
+      max = x.order;
+    }
+  });
+  return max;
+}
+
 const updateDirFunc = async (book:api.Book): Promise<api.UpdateDirResult> => {
   try {
     const chars = readCharsData(book)||[];
     const urls = chars.map(i=>i.url)
-    const max = chars.length == 0 ? 0 : chars[chars.length-1].order
-    const remoteChars = await readDir(book);
+    const max = getMaxCharId(chars);
+    let remoteChars = await readDir(book);
+    if(book.reSort === 'sort'){
+      remoteChars = sortChars(remoteChars)
+    }else if(book.reSort === 'sortNum'){
+      remoteChars = sortNumChars(remoteChars)
+    }
     let num = 0;
     remoteChars.forEach(v => {
       if(urls.indexOf(v.url) != -1){
@@ -207,6 +225,7 @@ class BookImpl implements api.Book {
   location?: string;
   method?: string | undefined;
   commonUrlParam?: string | undefined;
+  reSort? : string;
   encode?: string | undefined;
   interval?: number | undefined;
   block: api.Block;
@@ -217,6 +236,7 @@ class BookImpl implements api.Book {
     this.location = book.location;
     this.method = book.method;
     this.commonUrlParam = book.commonUrlParam;
+    this.reSort = book.reSort;
     this.encode = book.encode;
     this.interval = book.interval;
     this.block = book.block;
@@ -318,12 +338,12 @@ class BookImpl implements api.Book {
     return chars.slice(from, until);
   }
   reOrder(){
-    const chars = (this.getChars()||[])
+    const chars = sortChars(this.getChars()||[])
     chars.forEach((c,i)=>{
       c.order = i
       c.disOrder = i
     })
-    writeBookChars(this, sortChars(chars))
+    writeBookChars(this, chars)
   }
 }
 

@@ -126,6 +126,7 @@ class ReaderImpl implements api.Reader {
     const option = request.parseUrl(book.url);
     const site = storge.sites.find(i => i.host === option.host && i.protocol === option.protocol)
     book.block = (site||{}).block
+    book.reSort = (site||{}).reSort
     file.writeJson(bookDir + '/' + book.id + '/book.json', book)
     return '123'
   }

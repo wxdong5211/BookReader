@@ -42,6 +42,7 @@ export interface BookData {
   location? : string,
   method? : string,
   commonUrlParam? : string,
+  reSort? : string,
   encode? : string,
   interval? : number,
   block? : string
@@ -54,6 +55,7 @@ export interface Book extends BookConfig {
   location? : string,
   method? : string,
   commonUrlParam? : string,
+  reSort? : string,
   update(): string,
   updateDir(): Promise<UpdateDirResult>
   updateChar(id: number): Promise<string>,

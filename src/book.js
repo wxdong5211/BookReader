@@ -98,7 +98,13 @@ const updateDirFunc = async (book) => {
         const chars = readCharsData(book) || [];
         const urls = chars.map(i => i.url);
         const max = chars.length == 0 ? 0 : chars[chars.length - 1].order;
-        const remoteChars = await readDir(book);
+        let remoteChars = await readDir(book);
+        if (book.reSort === 'sort') {
+            remoteChars = sort_1.sortChars(remoteChars);
+        }
+        else if (book.reSort === 'sortNum') {
+            remoteChars = sort_1.sortNumChars(remoteChars);
+        }
         let num = 0;
         remoteChars.forEach(v => {
             if (urls.indexOf(v.url) != -1) {
@@ -211,6 +217,7 @@ class BookImpl {
         this.location = book.location;
         this.method = book.method;
         this.commonUrlParam = book.commonUrlParam;
+        this.reSort = book.reSort;
         this.encode = book.encode;
         this.interval = book.interval;
         this.block = book.block;
@@ -314,12 +321,12 @@ class BookImpl {
         return chars.slice(from, until);
     }
     reOrder() {
-        const chars = (this.getChars() || []);
+        const chars = sort_1.sortChars(this.getChars() || []);
         chars.forEach((c, i) => {
             c.order = i;
             c.disOrder = i;
         });
-        writeBookChars(this, sort_1.sortChars(chars));
+        writeBookChars(this, chars);
     }
 }
 exports.default = BookImpl;
