@@ -83,6 +83,7 @@ const subCharHtml = (book:api.Book, req: string): string => {
   req = req.replace(/<br\s*\/>/g, '\n');
   req = req.replace(/<script\s+\S*>.*<\/script>/g, '');
   req = req.replace(/<\/?.+?\/?>/g, '');
+  req = req.replace(/\n\s+\n/g, '\n');
   req = req.trim();
   return req;
 }

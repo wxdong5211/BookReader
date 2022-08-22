@@ -90,14 +90,27 @@ const subCharHtml = (book, req) => {
     req = req.replace(/<br\s*\/>/g, '\n');
     req = req.replace(/<script\s+\S*>.*<\/script>/g, '');
     req = req.replace(/<\/?.+?\/?>/g, '');
+    req = req.replace(/\n\s+\n/g, '\n');
     req = req.trim();
     return req;
+};
+const getMaxCharId = (chars) => {
+    if (chars == null || chars.length === 0) {
+        return 0;
+    }
+    let max = 0;
+    chars.forEach(x => {
+        if (max < x.order) {
+            max = x.order;
+        }
+    });
+    return max;
 };
 const updateDirFunc = async (book) => {
     try {
         const chars = readCharsData(book) || [];
         const urls = chars.map(i => i.url);
-        const max = chars.length == 0 ? 0 : chars[chars.length - 1].order;
+        const max = getMaxCharId(chars);
         let remoteChars = await readDir(book);
         if (book.reSort === 'sort') {
             remoteChars = sort_1.sortChars(remoteChars);
@@ -253,7 +266,8 @@ class BookImpl {
         if (charFull === null) {
             return '';
         }
-        const data = (charFull.data || '');
+        const data = (charFull.data || '').replace(/\n\s+\n/g, '\n');
+        ;
         const title = charFull.title || '';
         // return `<div><h3>${title}</h3><p>${data}</p></div>`;
         return `${title}\n${data}`;
