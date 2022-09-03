@@ -266,8 +266,7 @@ class BookImpl {
         if (charFull === null) {
             return '';
         }
-        const data = (charFull.data || '').replace(/\n\s+\n/g, '\n');
-        ;
+        const data = (charFull.data || '');
         const title = charFull.title || '';
         // return `<div><h3>${title}</h3><p>${data}</p></div>`;
         return `${title}\n${data}`;

@@ -74,7 +74,9 @@ const searchSite = async (name: string, site: any): Promise<api.BookData[]> => {
       const url = '/book/' + urls[0] + '/';
       c.url = domain + url;
     }else{
-      c.url = domain + c.url;
+      if(c.url.indexOf('http://')!==0 && c.url.indexOf('https://')!==0){
+        c.url = domain + c.url;
+      }
     }
     return c
   }).filter(c=>c != null) as Array<api.BookData>
@@ -94,7 +96,7 @@ const getBooksUpdateMap = (books: Array<any>) => {
 const storge = init()
 class ReaderImpl implements api.Reader {
   async search(name: string): Promise<api.BookData[]> {
-    const sites = storge.sites.filter(i => i.search) || []
+    const sites = storge.sites.filter(i => i.search && !i.search.skip) || []
     const list = []
     for(let i in sites){
       try{
