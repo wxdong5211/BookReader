@@ -109,6 +109,7 @@ class ReaderImpl {
                 console.error('search ' + name + ' fail', sites[i], e);
             }
         }
+        list.forEach((v, i) => { v.id = i; });
         return list;
     }
     all() {
@@ -216,8 +217,9 @@ class ReaderImpl {
                     if (bookUpdateData.readNum !== bookUpdateData.lastNum || bookUpdateData.lastNum === 0) {
                         const ret = book.exportTxtScope(bookUpdateData.readNum);
                         bookUpdateData.num = 0;
-                        bookUpdateData.readNum = bookUpdateData.lastNum;
-                        bookUpdateData.readChar = bookUpdateData.lastChar;
+                        const lastReadChar = book.getLastUpdateChar(bookUpdateData.readNum) || { title: '', order: 0 };
+                        bookUpdateData.readNum = lastReadChar.order;
+                        bookUpdateData.readChar = lastReadChar.title;
                         console.log(i + ' exportChars ret = ', bookUpdateData);
                     }
                 }

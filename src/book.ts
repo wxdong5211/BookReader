@@ -85,6 +85,9 @@ const subCharHtml = (book:api.Book, req: string): string => {
   req = req.replace(/<\/?.+?\/?>/g, '');
   req = req.replace(/\n\s+\n/g, '\n');
   req = req.trim();
+  if(book.block.filter && req.indexOf(book.block.filter) === 0){
+    req = '';
+  }
   return req;
 }
 
@@ -302,9 +305,21 @@ class BookImpl implements api.Book {
   getChar(id: number): api.Charcter{
     return (this.getCharsScope(id, id + 1)||[])[0];
   }
-  getLastUpdateChar(): api.Charcter | undefined{
+  getLastUpdateChar(from ?: number): api.Charcter | undefined{
     const chars = this.getChars()
-    return !chars ? undefined : [...chars].reverse().find(i => i.state === api.CharcterState.Done)
+    if(!chars){
+      return undefined;
+    }
+    const charsCopy = [...chars];
+    const formIdx = from != null && from > -1 ? from : 0;
+    const lastIdx = charsCopy.findIndex(i => i.order > formIdx && i.state !== api.CharcterState.Done)
+    if(lastIdx === -1){
+      return charsCopy[charsCopy.length-1];
+    }
+    if(lastIdx === 0){
+      return charsCopy[0];
+    }
+    return charsCopy[lastIdx-1]
   }
   getLastChar(): api.Charcter | undefined{
     const chars = this.getChars()

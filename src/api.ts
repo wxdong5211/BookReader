@@ -22,6 +22,7 @@ export interface Block {
   dirEnd: string,
   charStart: string,
   charEnd: string,
+  filter? : string
 }
 
 export interface BookConfig {
@@ -66,7 +67,7 @@ export interface Book extends BookConfig {
   getCharsLength(): number,
   getChars(): Array<Charcter>,
   getChar(id: number): Charcter,
-  getLastUpdateChar(): Charcter | undefined,
+  getLastUpdateChar(from ?: number): Charcter | undefined,
   getLastChar(): Charcter | undefined,
   updateCharState(state: CharcterState, id: number): void,
   updateCharStateScope(state: CharcterState, from: number, until ?: number): void,

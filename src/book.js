@@ -92,6 +92,9 @@ const subCharHtml = (book, req) => {
     req = req.replace(/<\/?.+?\/?>/g, '');
     req = req.replace(/\n\s+\n/g, '\n');
     req = req.trim();
+    if (book.block.filter && req.indexOf(book.block.filter) === 0) {
+        req = '';
+    }
     return req;
 };
 const getMaxCharId = (chars) => {
@@ -297,9 +300,23 @@ class BookImpl {
     getChar(id) {
         return (this.getCharsScope(id, id + 1) || [])[0];
     }
-    getLastUpdateChar() {
+    getLastUpdateChar(from) {
         const chars = this.getChars();
-        return !chars ? undefined : [...chars].reverse().find(i => i.state === api.CharcterState.Done);
+        if (!chars) {
+            return undefined;
+        }
+        const charsCopy = [...chars];
+        const formIdx = from != null && from > -1 ? from : 0;
+        console.log('formIdx', formIdx);
+        const lastIdx = charsCopy.findIndex(i => i.order > formIdx && i.state !== api.CharcterState.Done);
+        console.log('lastIdx', lastIdx);
+        if (lastIdx === -1) {
+            return charsCopy[charsCopy.length - 1];
+        }
+        if (lastIdx === 0) {
+            return charsCopy[0];
+        }
+        return charsCopy[lastIdx - 1];
     }
     getLastChar() {
         const chars = this.getChars();
