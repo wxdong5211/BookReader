@@ -15,6 +15,7 @@ const file_1 = __importDefault(require("./file"));
 const api = __importStar(require("./api"));
 const codec_1 = require("./codec");
 const sort_1 = require("./sort");
+const filter_1 = require("./filter");
 const sleep = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 const parseCharLink = (tag, idx) => {
     const hrefStart = 'href="';
@@ -92,6 +93,7 @@ const subCharHtml = (book, req) => {
     req = req.replace(/<\/?.+?\/?>/g, '');
     req = req.replace(/\n\s+\n/g, '\n');
     req = req.trim();
+    req = filter_1.clearContents(req);
     if (book.block.filter && req.indexOf(book.block.filter) === 0) {
         req = '';
     }
@@ -176,11 +178,16 @@ const updateChars = async (book, chars, force) => {
 };
 const updateCharFunc = async (book, char) => {
     try {
-        console.log(char);
+        console.log(`${book.id}:${char.id}->${book.name}:${char.title},${char.url},${char.create},${char.disOrder},${char.order},${char.state}`);
         const data = await readChar(book, char);
         const html = subCharHtml(book, data);
+        // const oldData = readCharFullData(book,char.id)
+        // if(oldData == null){
+        //   return api.CharcterState.Init
+        // }
+        // const html = clearContents(oldData.data)
         let state = api.CharcterState.Done;
-        if (!html) {
+        if (!html || html.length < 20) {
             state = api.CharcterState.Init;
         }
         const charFull = Object.assign({ data: html }, char, { create: new Date(), state: state });
@@ -307,9 +314,7 @@ class BookImpl {
         }
         const charsCopy = [...chars];
         const formIdx = from != null && from > -1 ? from : 0;
-        console.log('formIdx', formIdx);
         const lastIdx = charsCopy.findIndex(i => i.order > formIdx && i.state !== api.CharcterState.Done);
-        console.log('lastIdx', lastIdx);
         if (lastIdx === -1) {
             return charsCopy[charsCopy.length - 1];
         }

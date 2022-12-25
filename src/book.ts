@@ -3,6 +3,7 @@ import file from './file'
 import * as api from './api'
 import {encode} from './codec'
 import {sortChars, sortNumChars} from './sort'
+import {clearContents} from './filter'
 
 const sleep = (ms: number): Promise<void> => new Promise<void>((resolve,reject) => setTimeout(resolve, ms));
 
@@ -85,6 +86,7 @@ const subCharHtml = (book:api.Book, req: string): string => {
   req = req.replace(/<\/?.+?\/?>/g, '');
   req = req.replace(/\n\s+\n/g, '\n');
   req = req.trim();
+  req = clearContents(req);
   if(book.block.filter && req.indexOf(book.block.filter) === 0){
     req = '';
   }
@@ -169,11 +171,16 @@ const updateChars = async (book:api.Book, chars: Array<api.Charcter>, force: boo
 
 const updateCharFunc = async (book: api.Book, char: api.Charcter) : Promise<api.CharcterState> => {
   try {
-    console.log(char)
+    console.log(`${book.id}:${char.id}->${book.name}:${char.title},${char.url},${char.create},${char.disOrder},${char.order},${char.state}`)
     const data = await readChar(book, char)
     const html = subCharHtml(book, data);
+    // const oldData = readCharFullData(book,char.id)
+    // if(oldData == null){
+    //   return api.CharcterState.Init
+    // }
+    // const html = clearContents(oldData.data)
     let state = api.CharcterState.Done
-    if(!html){
+    if(!html || html.length < 50){
       state = api.CharcterState.Init
     }
     const charFull = Object.assign({data:html}, char, {create : new Date(), state: state});

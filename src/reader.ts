@@ -196,7 +196,7 @@ class ReaderImpl implements api.Reader {
         }
       }
     }
-    newResults.forEach(i => console.log(` update chars `, i))
+    newResults.forEach(i => console.log(` update chars ${i.idx}:${i.id}:${i.name},${i.readNum}:${i.readChar}->${i.lastNum}:${i.lastChar},${i.num},${i.total},${i.skip},${i.done},${i.error}`))
     return '123'
   }
   exportChars(): string {
