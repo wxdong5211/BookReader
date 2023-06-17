@@ -178,7 +178,6 @@ const updateChars = async (book, chars, force) => {
 };
 const updateCharFunc = async (book, char) => {
     try {
-        console.log(`${book.id}:${char.id}->${book.name}:${char.title},${char.url},${char.create},${char.disOrder},${char.order},${char.state}`);
         const data = await readChar(book, char);
         const html = subCharHtml(book, data);
         // const oldData = readCharFullData(book,char.id)
@@ -187,16 +186,17 @@ const updateCharFunc = async (book, char) => {
         // }
         // const html = clearContents(oldData.data)
         let state = api.CharcterState.Done;
-        if (!html || html.length < 20) {
+        if (!html || html.length < 50) {
             state = api.CharcterState.Init;
         }
         const charFull = Object.assign({ data: html }, char, { create: new Date(), state: state });
         writeBookChar(book, charFull);
+        console.log(`${book.id}:${char.id}->${book.name}:${char.title},${char.url},${char.create},${char.disOrder},${char.order},${char.state},${state}`);
         char.state = state;
         return state;
     }
     catch (e) {
-        console.error('problem with request: ' + e.message);
+        console.error(`${book.id}:${char.id}->${book.name}:${char.title},${char.url},${char.create},${char.disOrder},${char.order},${char.state},${api.CharcterState.Error}:${'problem with request: ' + e.message}`);
         char.state = api.CharcterState.Error;
         return char.state;
     }

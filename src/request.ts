@@ -17,7 +17,7 @@ export const parseUrl = (urlStr:string) : http.RequestOptions => {
     headers: {
       // 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36'
     },
-    timeout: 10
+    timeout: 10000
   }
   return option;
 }
@@ -54,6 +54,12 @@ export const request = (options: http.RequestOptions &  { rejectUnauthorized?: b
     // rejectUnauthorized: false,
   }
   const req = httpMod(options, cb);
+  req.on('timeout',function(){
+    // if(req.res){
+    //     req.res('abort');
+    // }
+    req.abort()
+  });
   req.on('error', e => reject(e));
   if(data){
     req.write(data)
